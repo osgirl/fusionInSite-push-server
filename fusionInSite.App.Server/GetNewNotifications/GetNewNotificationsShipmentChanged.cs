@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using FusionInsite.App.Server.Data.Models;
 using FusionInsite.App.Server.Data.Repositories.Interfaces;
 
@@ -16,9 +17,15 @@ namespace FusionInsite.App.Server.GetNewNotifications
 
         public List<PushNotification> GetNotifications()
         {
+            return new List<PushNotification>
+            {
+                new PushNotification { PushNotificationType = PushNotificationType.ShipmentStatusChanged, Id = 1, Message = "New Shipment Changed", ProtocolId = 1, StatusId = 1}
+            };
+
             var alerts = _alertsRepository.GetShipmentStatusChanged();
             Console.WriteLine("GetNewNotificationsShipmentChanged");
-            return new List<PushNotification>();
+
+            return alerts.Select(a => new PushNotification { PushNotificationType = PushNotificationType.ShipmentStatusChanged}).ToList();
         }
     }
 }

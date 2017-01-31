@@ -18,7 +18,7 @@ namespace FusionInsite.App.Server.Data.Repositories
             {
                 conn.Open();
                 var cmd = new SqlCommand(@"SELECT ShipmentKey, txtProtocolID, txtAptuitShipmentID, txtShipmentStatus, txtCarrierStatus, txtShipmentEnteredDate, txtPlannedShipDate, txtActualShipDate, txtCarrierStatusDate 
-                                           FROM tblPortalShipments
+                                           FROM tblPortalShipments WITH(NOLOCK)
                                            WHERE (txtCarrierStatusDate > @LastRunDate OR txtLastUpdate > @LastRunDate)
                                            AND TxtShipmentStatus IN('Shipped', 'Delivered')", conn) { CommandType = CommandType.Text };
                 cmd.Parameters.Add(new SqlParameter("@LastRunDate", DateTime.Now.AddDays(-0.5)));
@@ -38,7 +38,7 @@ namespace FusionInsite.App.Server.Data.Repositories
             {
                 conn.Open();
                 var cmd = new SqlCommand(@"SELECT txtProtocolID, txtAptuitShipmentID, txtShipmentStatus, txtCarrierStatus, txtShipmentEnteredDate,txtPlannedShipDate,txtActualShipDate, txtCarrierStatusDate
-                                           FROM tblPortalShipments
+                                           FROM tblPortalShipments WITH(NOLOCK)
                                            WHERE  txtActualShipDate >= @From AND txtActualShipDate < @To
                                            AND 	  TxtShipmentStatus IN ('Shipped')", conn) { CommandType = CommandType.Text };
                 var lastRunDate = DateTime.Now.AddDays(-1);
@@ -60,7 +60,7 @@ namespace FusionInsite.App.Server.Data.Repositories
             {
                 conn.Open();
                 var cmd = new SqlCommand(@"SELECT txtProtocolID, txtExpirationDate, txtStatusID 
-                                           FROM tblPortalInventory
+                                           FROM tblPortalInventory WITH(NOLOCK)
                                            WHERE  txtExpirationDate >= @From AND txtExpirationDate < @to", conn) { CommandType = CommandType.Text };
                 var lastRunDate = DateTime.Now.AddDays(-1);
                 cmd.Parameters.Add(new SqlParameter("@From", lastRunDate.AddDays(30))); 

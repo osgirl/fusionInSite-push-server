@@ -15,21 +15,21 @@ namespace FusionInsite.App.Server.Tests
         private readonly PushNotification _notificationProtocol1Id1 = new PushNotification
         {
             PushNotificationType = PushNotificationType.NotReceivedShipment,
-            ProtocolId = "Protocol",
+            ProtocolId = 101,
             Id = 1
         };
 
         private readonly PushNotification _notificationProtocol1Id2 = new PushNotification
         {
             PushNotificationType = PushNotificationType.NotReceivedShipment,
-            ProtocolId = "Protocol",
+            ProtocolId = 101,
             Id = 2
         };
         
         private readonly PushNotification _notificationProtocol2 = new PushNotification
         {
             PushNotificationType = PushNotificationType.NotReceivedShipment,
-            ProtocolId = "Protocol2",
+            ProtocolId = 102,
             Id = 1
         };
         
@@ -78,7 +78,7 @@ namespace FusionInsite.App.Server.Tests
         {
             var builder =
                 new PushNotificationCoordinatorBuilder().WithNotificationsToSend(_notificationProtocol1Id1)
-                .WithUserSubscribedToProtocol("Protocol", new List<string> {"user1", "user2"});
+                .WithUserSubscribedToProtocol(101, new List<string> {"user1", "user2"});
             var push = builder.Build();
             push.Send();
             builder.AssetSendsNotifications(2);
@@ -91,7 +91,7 @@ namespace FusionInsite.App.Server.Tests
                 new PushNotificationCoordinatorBuilder()
                     .WithNotificationsToSend(_notificationProtocol1Id1)
                     .WithNotificationsToSend(_notificationProtocol1Id2)
-                    .WithUserSubscribedToProtocol("Protocol", new List<string> { "user1", "user2" });
+                    .WithUserSubscribedToProtocol(101, new List<string> { "user1", "user2" });
             var push = builder.Build();
             push.Send();
             builder.AssetSendsNotifications(2);
@@ -143,8 +143,8 @@ namespace FusionInsite.App.Server.Tests
                     .WithNotificationsToSend(_notificationProtocol1Id1)
                     .WithNotificationsToSend(_notificationProtocol2)
                     .WithNotificationsAlreadySent(_notificationProtocol1Id1)
-                    .WithUserSubscribedToProtocol("Protocol", new List<string> {"user1"})
-                    .WithUserSubscribedToProtocol("Protocol2", new List<string> {"user2"});
+                    .WithUserSubscribedToProtocol(101, new List<string> {"user1"})
+                    .WithUserSubscribedToProtocol(102, new List<string> {"user2"});
             var push = builder.Build();
             push.Send();
             builder.AssetSendsNotifications(1);
@@ -155,7 +155,7 @@ namespace FusionInsite.App.Server.Tests
 
     public class PushNotificationCoordinatorBuilder
     {
-        private readonly Mock<ISentNotificationRepository> _sentNotificationRepository = new Mock<ISentNotificationRepository>();
+        private readonly Mock<INotificationHistoryRepository> _sentNotificationRepository = new Mock<INotificationHistoryRepository>();
         private readonly Mock<IPushNotificationSender> _pushNotificationSender = new Mock<IPushNotificationSender>();
         private readonly Mock<IGetNewNotifications> _getNewNotifications = new Mock<IGetNewNotifications>();
 
@@ -164,7 +164,7 @@ namespace FusionInsite.App.Server.Tests
 
         public PushNotificationCoordinatorBuilder()
         {
-            _userNotificationRepository.Setup(r => r.GetUsersSubscribedToProtocol(It.IsAny<string>()))
+            _userNotificationRepository.Setup(r => r.GetUsersSubscribedToProtocol(It.IsAny<int>()))
                 .Returns(new List<string> {"user1"});
             _pushNotificationSender.Setup(s => s.Send(It.IsAny<UserMessage>())).Returns(PushResult.Success);
         }
@@ -196,7 +196,7 @@ namespace FusionInsite.App.Server.Tests
             return this;
         }
 
-        public PushNotificationCoordinatorBuilder WithUserSubscribedToProtocol(string protocolId, List<string> users)
+        public PushNotificationCoordinatorBuilder WithUserSubscribedToProtocol(int protocolId, List<string> users)
         {
             _userNotificationRepository.Setup(r => r.GetUsersSubscribedToProtocol(protocolId)).Returns(users);
             return this;

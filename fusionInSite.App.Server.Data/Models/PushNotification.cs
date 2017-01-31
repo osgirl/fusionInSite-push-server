@@ -28,8 +28,9 @@ namespace FusionInsite.App.Server.Data.Models
     public class PushNotification
     {
         public int Id { get; set; }
-        public string ProtocolId { get; set; }
+        public int ProtocolId { get; set; }
         public PushNotificationType PushNotificationType { get; set; }
+        public int StatusId { get; set; }
         public string Message { get; set; }
     }
 

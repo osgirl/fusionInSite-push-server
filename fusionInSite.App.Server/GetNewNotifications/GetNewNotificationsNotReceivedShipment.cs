@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using FusionInsite.App.Server.Data.Models;
 using FusionInsite.App.Server.Data.Repositories.Interfaces;
 
@@ -18,7 +19,7 @@ namespace FusionInsite.App.Server.GetNewNotifications
         {
             var alerts = _alertsRepository.GetNotReceivedShipment();
             Console.WriteLine("GetNewNotificationsNotReceivedShipment");
-            return new List<PushNotification>();
+            return alerts.Select(a => new PushNotification { PushNotificationType = PushNotificationType.NotReceivedShipment }).ToList();
         }
     }
 }

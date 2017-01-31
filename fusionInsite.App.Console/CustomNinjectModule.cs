@@ -11,13 +11,14 @@ namespace fusionInsite.App.Console
             Kernel.Bind(x =>
             {
                 x.FromAssembliesMatching("*")
-                    .SelectAllClasses()      // Retrieve all non-abstract classes
-                    .BindDefaultInterface(); // Binds the default interface to them;
+                 .SelectAllClasses()      // Retrieve all non-abstract classes
+                 .BindDefaultInterface(); // Binds the default interface to them;
             });
 
             Bind<IGetNewNotifications>().To<GetNewNotificationsShipmentChanged>();
-            Bind<IGetNewNotifications>().To<GetNewNotificationsNotReceivedShipment>();
             Bind<IGetNewNotifications>().To<GetNewNotificationsExpiringInventory>();
+
+           // Bind<IGetNewNotifications>().To<GetNewNotificationsNotReceivedShipment>();
             
         }
     }

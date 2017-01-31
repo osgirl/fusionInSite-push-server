@@ -12,14 +12,14 @@ namespace FusionInsite.App.Server
 {
     public class PushNotificationCoordinator
     {
-        private readonly ISentNotificationRepository _sentNotificationRepository;
+        private readonly INotificationHistoryRepository _notificationHistoryRepository;
         private readonly IUserSubscriptionRepository _userSubscriptionRepository;
         private readonly IEnumerable<IGetNewNotifications> _notificationMakers;
         private readonly IPushNotificationSender _pushNotificationSender;
 
-        public PushNotificationCoordinator(ISentNotificationRepository sentNotificationRepository, IUserSubscriptionRepository userSubscriptionRepository, IEnumerable<IGetNewNotifications> notificationMakers, IPushNotificationSender pushNotificationSender) // Ninject will bind all instances
+        public PushNotificationCoordinator(INotificationHistoryRepository notificationHistoryRepository, IUserSubscriptionRepository userSubscriptionRepository, IEnumerable<IGetNewNotifications> notificationMakers, IPushNotificationSender pushNotificationSender) // Ninject will bind all instances
         {
-            _sentNotificationRepository = sentNotificationRepository;
+            _notificationHistoryRepository = notificationHistoryRepository;
             _userSubscriptionRepository = userSubscriptionRepository;
             _notificationMakers = notificationMakers;
             _pushNotificationSender = pushNotificationSender;
@@ -28,17 +28,21 @@ namespace FusionInsite.App.Server
         public void Send()
         {
             var notifications = _notificationMakers.SelectMany(maker => maker.GetNotifications()
-                .Where(notification => !_sentNotificationRepository.IsAlreadySent(notification)))
+                .Where(notification => !_notificationHistoryRepository.IsAlreadySent(notification)))
                 .ToList();
-            
-            var usernotifications = notifications.SelectMany(GetUserNotifications).GroupBy(n => n.User);
+
+            Console.WriteLine($"{notifications.Count} new notifications.");
+
+            var usernotifications = notifications.SelectMany(GetUserNotifications).GroupBy(n => n.User).ToList();
+
+            Console.WriteLine($"{usernotifications.Count} users to send to.");
 
             foreach (var notification in usernotifications)
             {
                 SendNotification(notification.Key, notification.ToList());
             }
 
-            foreach (var notification in notifications) _sentNotificationRepository.Add(notification);
+            foreach (var notification in notifications) _notificationHistoryRepository.Add(notification);
         }
 
         private IEnumerable<UserPushNotification> GetUserNotifications(PushNotification notification)
