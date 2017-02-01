@@ -1,4 +1,5 @@
-﻿using FusionInsite.App.Server.Data.Models;
+﻿using System;
+using FusionInsite.App.Server.Data.Models;
 
 namespace FusionInsite.App.Server.Data.Repositories.Interfaces
 {
@@ -6,5 +7,7 @@ namespace FusionInsite.App.Server.Data.Repositories.Interfaces
     {
         bool IsAlreadySent(PushNotification notification);
         void Add(PushNotification notification);
+        void AddLog(int notificationCount, int userCount);
+        DateTime GetLastRunTimestamp();
     }
 }

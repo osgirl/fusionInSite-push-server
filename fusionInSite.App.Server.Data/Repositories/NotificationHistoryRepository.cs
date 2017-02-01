@@ -2,6 +2,7 @@ using System;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
+using System.Data.SqlTypes;
 using FusionInsite.App.Server.Data.Models;
 using FusionInsite.App.Server.Data.Repositories.Interfaces;
 
@@ -36,6 +37,7 @@ namespace FusionInsite.App.Server.Data.Repositories
                     default:
                         throw new NotImplementedException();
                 }
+
             }
         }
 
@@ -51,7 +53,7 @@ namespace FusionInsite.App.Server.Data.Repositories
                     case PushNotificationType.ShipmentStatusChanged:
                     {
                         var cmd = new SqlCommand(@"INSERT INTO tblNotificationShipment (NotificationID, ShipmentKey, txtShipmentStatusID, NotificationTypeID)
-                                               VALUES (@NotificationID, @ShipmentKey, @txtShipmentStatusID, @NotificationTypeID)", conn);
+                                                   VALUES (@NotificationID, @ShipmentKey, @txtShipmentStatusID, @NotificationTypeID)", conn);
                         cmd.Parameters.Add(new SqlParameter("@NotificationID", notificationId));
                         cmd.Parameters.Add(new SqlParameter("@ShipmentKey", notification.Id));
                         cmd.Parameters.Add(new SqlParameter("@txtShipmentStatusID", notification.StatusId));
@@ -63,7 +65,7 @@ namespace FusionInsite.App.Server.Data.Repositories
                     {
                         var cmd =
                             new SqlCommand(@"INSERT INTO tblNotificationInventory (NotificationID, ShipmentKey, NotificationTypeID)
-                                               VALUES (@NotificationID, @ShipmentKey,  @NotificationTypeID)", conn)
+                                             VALUES (@NotificationID, @ShipmentKey,  @NotificationTypeID)", conn)
                             {
                                 CommandType = CommandType.Text
                             };
@@ -77,6 +79,34 @@ namespace FusionInsite.App.Server.Data.Repositories
                         throw new NotImplementedException();
                 }
                 
+            }
+        }
+
+        public void AddLog(int notificationCount, int userCount)
+        {
+            using (var conn = new SqlConnection { ConnectionString = ConfigurationManager.AppSettings["ConnectionString"] })
+            {
+                conn.Open();
+         
+                var cmd = new SqlCommand(@"INSERT INTO tblNotificationLog (NotificationCount, UserCount)
+                                            VALUES (@NotificationCount, @UserCount)", conn);
+                cmd.Parameters.Add(new SqlParameter("@NotificationCount", notificationCount));
+                cmd.Parameters.Add(new SqlParameter("@UserCount", userCount));
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+        public DateTime GetLastRunTimestamp()
+        {
+            using (var conn = new SqlConnection { ConnectionString = ConfigurationManager.AppSettings["ConnectionString"] })
+            {
+                conn.Open();
+         
+                var cmd = new SqlCommand(@"SELECT MAX(SentTimestamp) FROM tblNotificationLog", conn);
+                var sentTimestamp = cmd.ExecuteScalar();
+                return sentTimestamp == null || sentTimestamp == DBNull.Value
+                    ? SqlDateTime.MinValue.Value
+                    : (DateTime) sentTimestamp;
             }
         }
     }

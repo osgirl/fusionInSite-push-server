@@ -15,14 +15,14 @@ namespace FusionInsite.App.Server.GetNewNotifications
             _alertsRepository = alertsRepository;
         }
 
-        public List<PushNotification> GetNotifications()
+        public List<PushNotification> GetNotifications(DateTime lastRunTimestamp)
         {
             return new List<PushNotification>
             {
                 new PushNotification { PushNotificationType = PushNotificationType.ShipmentStatusChanged, Id = 1, Message = "New Shipment Changed", ProtocolId = 1, StatusId = 1}
             };
 
-            var alerts = _alertsRepository.GetShipmentStatusChanged();
+            var alerts = _alertsRepository.GetShipmentStatusChanged(lastRunTimestamp);
             Console.WriteLine("GetNewNotificationsShipmentChanged");
 
             return alerts.Select(a => new PushNotification { PushNotificationType = PushNotificationType.ShipmentStatusChanged}).ToList();

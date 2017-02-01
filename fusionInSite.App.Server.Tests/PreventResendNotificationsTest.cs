@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Castle.Components.DictionaryAdapter;
 using FusionInsite.App.Server.Data.Models;
 using FusionInsite.App.Server.Data.Repositories;
@@ -173,7 +174,7 @@ namespace FusionInsite.App.Server.Tests
 
         public PushNotificationCoordinator Build()
         {
-            _getNewNotifications.Setup(g => g.GetNotifications()).Returns(_pushNotifications);
+            _getNewNotifications.Setup(g => g.GetNotifications(It.IsAny<DateTime>())).Returns(_pushNotifications);
             
             return new PushNotificationCoordinator(_sentNotificationRepository.Object, _userNotificationRepository.Object, new List<IGetNewNotifications>
             {

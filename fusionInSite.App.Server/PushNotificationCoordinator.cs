@@ -27,7 +27,9 @@ namespace FusionInsite.App.Server
 
         public void Send()
         {
-            var notifications = _notificationMakers.SelectMany(maker => maker.GetNotifications()
+            var lastRunTimestamp = _notificationHistoryRepository.GetLastRunTimestamp();
+
+            var notifications = _notificationMakers.SelectMany(maker => maker.GetNotifications(lastRunTimestamp)
                 .Where(notification => !_notificationHistoryRepository.IsAlreadySent(notification)))
                 .ToList();
 
@@ -43,6 +45,8 @@ namespace FusionInsite.App.Server
             }
 
             foreach (var notification in notifications) _notificationHistoryRepository.Add(notification);
+
+            _notificationHistoryRepository.AddLog(notifications.Count, usernotifications.Count);
         }
 
         private IEnumerable<UserPushNotification> GetUserNotifications(PushNotification notification)
