@@ -15,21 +15,21 @@ namespace FusionInsite.App.Server.Tests
     {
         private readonly PushNotification _notificationProtocol1Id1 = new PushNotification
         {
-            PushNotificationType = PushNotificationType.NotReceivedShipment,
+            PushNotificationType = PushNotificationType.ShipmentStatusChanged,
             ProtocolId = 101,
             Id = 1
         };
 
         private readonly PushNotification _notificationProtocol1Id2 = new PushNotification
         {
-            PushNotificationType = PushNotificationType.NotReceivedShipment,
+            PushNotificationType = PushNotificationType.ShipmentStatusChanged,
             ProtocolId = 101,
             Id = 2
         };
         
         private readonly PushNotification _notificationProtocol2 = new PushNotification
         {
-            PushNotificationType = PushNotificationType.NotReceivedShipment,
+            PushNotificationType = PushNotificationType.ShipmentStatusChanged,
             ProtocolId = 102,
             Id = 1
         };
@@ -165,7 +165,7 @@ namespace FusionInsite.App.Server.Tests
 
         public PushNotificationCoordinatorBuilder()
         {
-            _userNotificationRepository.Setup(r => r.GetUsersSubscribedToProtocol(It.IsAny<int>()))
+            _userNotificationRepository.Setup(r => r.GetUserTokensSubscribedToProtocol(It.IsAny<int>(), It.IsAny<PushNotificationType>()))
                 .Returns(new List<string> {"user1"});
             _pushNotificationSender.Setup(s => s.Send(It.IsAny<UserMessage>())).Returns(PushResult.Success);
         }
@@ -199,7 +199,7 @@ namespace FusionInsite.App.Server.Tests
 
         public PushNotificationCoordinatorBuilder WithUserSubscribedToProtocol(int protocolId, List<string> users)
         {
-            _userNotificationRepository.Setup(r => r.GetUsersSubscribedToProtocol(protocolId)).Returns(users);
+            _userNotificationRepository.Setup(r => r.GetUserTokensSubscribedToProtocol(protocolId, It.IsAny<PushNotificationType>())).Returns(users);
             return this;
         }
 

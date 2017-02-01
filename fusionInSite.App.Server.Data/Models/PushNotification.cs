@@ -16,11 +16,11 @@ namespace FusionInsite.App.Server.Data.Models
             Message = pushNotification.Message;
         }
 
-        public string User { get; set; }
+        public string Token { get; set; }
 
-        public UserPushNotification WithUser(string user)
+        public UserPushNotification WithUserToken(string token)
         {
-            User = user;
+            Token = token;
             return this;
         }
     }
@@ -36,7 +36,7 @@ namespace FusionInsite.App.Server.Data.Models
 
     public class UserMessage
     {
-        public string User { get; set; }
+        public string Token { get; set; }
         public string Message { get; set; }
     }
 }

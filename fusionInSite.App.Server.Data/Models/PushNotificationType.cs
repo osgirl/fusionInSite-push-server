@@ -9,7 +9,6 @@ namespace FusionInsite.App.Server.Data.Models
     public enum PushNotificationType
     {
         ShipmentStatusChanged,
-        NotReceivedShipment,
         ExpiringInventory
     }
 }

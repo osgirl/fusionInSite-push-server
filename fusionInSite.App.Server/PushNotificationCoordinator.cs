@@ -35,7 +35,7 @@ namespace FusionInsite.App.Server
 
             Console.WriteLine($"{notifications.Count} new notifications.");
 
-            var usernotifications = notifications.SelectMany(GetUserNotifications).GroupBy(n => n.User).ToList();
+            var usernotifications = notifications.SelectMany(GetUserNotifications).GroupBy(n => n.Token).ToList();
 
             Console.WriteLine($"{usernotifications.Count} users to send to.");
 
@@ -51,26 +51,26 @@ namespace FusionInsite.App.Server
 
         private IEnumerable<UserPushNotification> GetUserNotifications(PushNotification notification)
         {
-            return _userSubscriptionRepository.GetUsersSubscribedToProtocol(notification.ProtocolId)
-                .Select(user => (new UserPushNotification(notification)).WithUser(user));
+            return _userSubscriptionRepository.GetUserTokensSubscribedToProtocol(notification.ProtocolId, notification.PushNotificationType)
+                .Select(token => (new UserPushNotification(notification)).WithUserToken(token));
         }
 
-        private void SendNotification(string user, IReadOnlyCollection<UserPushNotification> notifications)
+        private void SendNotification(string token, IReadOnlyCollection<UserPushNotification> notifications)
         {
-            var userMessage = GetNotification(user, notifications);
+            var userMessage = GetNotificationMessage(token, notifications);
             PushResult result = _pushNotificationSender.Send(userMessage);
         }
 
-        private UserMessage GetNotification(string user, IReadOnlyCollection<UserPushNotification> notifications)
+        private UserMessage GetNotificationMessage(string token, IReadOnlyCollection<UserPushNotification> notifications)
         {
             if (notifications.Count == 1)
             {
-                return new UserMessage {User = user, Message = notifications.Single().Message};
+                return new UserMessage {Token = token, Message = notifications.Single().Message};
             }
 
             return new UserMessage
             {
-                User = user,
+                Token = token,
                 Message = "Multiple messages"
             };
         }
