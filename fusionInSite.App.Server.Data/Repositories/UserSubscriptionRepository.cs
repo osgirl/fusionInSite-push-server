@@ -10,7 +10,7 @@ namespace FusionInsite.App.Server.Data.Repositories
 {
     public class UserSubscriptionRepository : IUserSubscriptionRepository
     {
-        public List<string> GetUserTokensSubscribedToProtocol(int protocolId, PushNotificationType notificationTypeId)
+        public List<string> GetUserTokensSubscribedToProtocol(int? protocolId, PushNotificationType notificationTypeId)
         {
             using (var conn = new SqlConnection { ConnectionString = ConfigurationManager.AppSettings["ConnectionString"] })
             {

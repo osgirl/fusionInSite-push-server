@@ -6,9 +6,9 @@ namespace FusionInsite.App.Server.Data.Repositories.Interfaces
 {
     public interface IAlertsRepository
     {
-        List<DataRow> GetExpiringInventory(DateTime lastRunTimestamp);
-        List<DataRow> GetNotReceivedShipment(DateTime lastRunTimestamp);
-        List<DataRow> GetShipmentStatusChanged(DateTime lastRunTimestamp);
+        List<ExpiringInventoryItem> GetExpiringInventory(DateTime lastRunTimestamp);
+        //List<DataRow> GetNotReceivedShipment(DateTime lastRunTimestamp); // Cannot use until data is consistent
+        List<ShipmentStatusChangedItem> GetShipmentStatusChanged(DateTime lastRunTimestamp);
     }
     
 }

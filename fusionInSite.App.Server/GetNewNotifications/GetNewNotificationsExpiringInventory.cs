@@ -21,7 +21,13 @@ namespace FusionInsite.App.Server.GetNewNotifications
 
             Console.WriteLine("GetNewNotificationsExpiringInventory");
 
-            return alerts.Select(a => new PushNotification {PushNotificationType = PushNotificationType.ExpiringInventory}).ToList();
+            return alerts.Select(a => new PushNotification
+            {
+                PushNotificationType = PushNotificationType.ExpiringInventory,
+                InventoryKey = a.InventoryKey,
+                ProtocolId = a.ProtocolId,
+                Message = $"Inventory {a.InventoryKey} is expiring on {a.ExpirationDate?.ToShortDateString() ?? ""}"
+            }).ToList();
         }
     }
 }

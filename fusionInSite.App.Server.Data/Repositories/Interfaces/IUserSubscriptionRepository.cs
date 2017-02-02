@@ -5,6 +5,6 @@ namespace FusionInsite.App.Server.Data.Repositories.Interfaces
 {
     public interface IUserSubscriptionRepository
     {
-        List<string> GetUserTokensSubscribedToProtocol(int protocolId, PushNotificationType notificationTypeId);
+        List<string> GetUserTokensSubscribedToProtocol(int? protocolId, PushNotificationType notificationTypeId);
     }
 }

@@ -5,33 +5,41 @@ using FusionInsite.App.Server.Data.Models;
 using FusionInsite.App.Server.Data.Repositories;
 using FusionInsite.App.Server.Data.Repositories.Interfaces;
 using FusionInsite.App.Server.GetNewNotifications;
+using FusionInsite.App.Server.PushNotificationSender;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
 namespace FusionInsite.App.Server.Tests
 {
     [TestClass]
-    public class PreventResendNotificationsTest
+    public class PushNotificationCoordinatorTest
     {
         private readonly PushNotification _notificationProtocol1Id1 = new PushNotification
         {
             PushNotificationType = PushNotificationType.ShipmentStatusChanged,
             ProtocolId = 101,
-            Id = 1
+            ShipmentKey = 1
         };
 
         private readonly PushNotification _notificationProtocol1Id2 = new PushNotification
         {
             PushNotificationType = PushNotificationType.ShipmentStatusChanged,
             ProtocolId = 101,
-            Id = 2
+            ShipmentKey = 2
         };
         
-        private readonly PushNotification _notificationProtocol2 = new PushNotification
+        private readonly PushNotification _notificationProtocol2Id1 = new PushNotification
         {
             PushNotificationType = PushNotificationType.ShipmentStatusChanged,
             ProtocolId = 102,
-            Id = 1
+            ShipmentKey = 3
+        };
+
+        private readonly PushNotification _notificationProtocol2Id2 = new PushNotification
+        {
+            PushNotificationType = PushNotificationType.ShipmentStatusChanged,
+            ProtocolId = 102,
+            ShipmentKey = 4
         };
         
         [TestMethod]
@@ -79,10 +87,10 @@ namespace FusionInsite.App.Server.Tests
         {
             var builder =
                 new PushNotificationCoordinatorBuilder().WithNotificationsToSend(_notificationProtocol1Id1)
-                .WithUserSubscribedToProtocol(101, new List<string> {"user1", "user2"});
+                .WithUserSubscribedToProtocol(_notificationProtocol1Id1.ProtocolId, new List<string> {"user1", "user2"});
             var push = builder.Build();
             push.Send();
-            builder.AssetSendsNotifications(2);
+            builder.AssetSendsNotifications(1, 2);
         }
         
         [TestMethod]
@@ -92,17 +100,20 @@ namespace FusionInsite.App.Server.Tests
                 new PushNotificationCoordinatorBuilder()
                     .WithNotificationsToSend(_notificationProtocol1Id1)
                     .WithNotificationsToSend(_notificationProtocol1Id2)
-                    .WithUserSubscribedToProtocol(101, new List<string> { "user1", "user2" });
+                    .WithUserSubscribedToProtocol(_notificationProtocol1Id1.ProtocolId,
+                        new List<string> {"user1", "user2"});
             var push = builder.Build();
             push.Send();
-            builder.AssetSendsNotifications(2);
+            builder.AssetSendsNotifications(1, 2);
         }
         
         [TestMethod]
         public void WithTwoNotificationsToDSameUser_Send_GroupsTheNotifications()
         {
             var builder =
-                new PushNotificationCoordinatorBuilder().WithNotificationsToSend(_notificationProtocol1Id1).WithNotificationsToSend(_notificationProtocol1Id2);
+                new PushNotificationCoordinatorBuilder()
+                    .WithNotificationsToSend(_notificationProtocol1Id1)
+                    .WithNotificationsToSend(_notificationProtocol1Id2);
             var push = builder.Build();
             push.Send();
             builder.AssetSendsNotifications(1);
@@ -142,13 +153,30 @@ namespace FusionInsite.App.Server.Tests
             var builder =
                 new PushNotificationCoordinatorBuilder()
                     .WithNotificationsToSend(_notificationProtocol1Id1)
-                    .WithNotificationsToSend(_notificationProtocol2)
+                    .WithNotificationsToSend(_notificationProtocol2Id1)
                     .WithNotificationsAlreadySent(_notificationProtocol1Id1)
                     .WithUserSubscribedToProtocol(101, new List<string> {"user1"})
                     .WithUserSubscribedToProtocol(102, new List<string> {"user2"});
             var push = builder.Build();
             push.Send();
             builder.AssetSendsNotifications(1);
+        }
+
+        [TestMethod]
+        public void WithTwoDifferentNotificationsSubscribedBy2DifferentUsers_Send_DoesNotCombineTheNotifications()
+        {
+            // The push notification also contains the IDs so we can't group different IDs
+            var builder =
+                new PushNotificationCoordinatorBuilder()
+                    .WithNotificationsToSend(_notificationProtocol1Id1)
+                    .WithNotificationsToSend(_notificationProtocol1Id2)
+                    .WithNotificationsToSend(_notificationProtocol2Id1)
+                    .WithNotificationsToSend(_notificationProtocol2Id2)
+                    .WithUserSubscribedToProtocol(_notificationProtocol1Id1.ProtocolId, new List<string> {"user1"})
+                    .WithUserSubscribedToProtocol(_notificationProtocol2Id1.ProtocolId, new List<string> {"user2"});
+            var push = builder.Build();
+            push.Send();
+            builder.AssetSendsNotifications(2, 1);
         }
 
 
@@ -182,10 +210,11 @@ namespace FusionInsite.App.Server.Tests
             }, _pushNotificationSender.Object);
         }
 
-        public void AssetSendsNotifications(int number)
+        public void AssetSendsNotifications(int messages, int users = 1)
         {
-            _pushNotificationSender.Verify(s => s.Send(It.IsAny<UserMessage>()), Times.Exactly(number));
+            _pushNotificationSender.Verify(s => s.Send( It.Is<UserMessage>(l => l.Token.Count == users)), Times.Exactly(messages));
         }
+        
         public void AssertAddsToRepo(PushNotification notification)
         {
             _sentNotificationRepository.Verify(s => s.Add(notification));
@@ -197,7 +226,7 @@ namespace FusionInsite.App.Server.Tests
             return this;
         }
 
-        public PushNotificationCoordinatorBuilder WithUserSubscribedToProtocol(int protocolId, List<string> users)
+        public PushNotificationCoordinatorBuilder WithUserSubscribedToProtocol(int? protocolId, List<string> users)
         {
             _userNotificationRepository.Setup(r => r.GetUserTokensSubscribedToProtocol(protocolId, It.IsAny<PushNotificationType>())).Returns(users);
             return this;
@@ -210,7 +239,8 @@ namespace FusionInsite.App.Server.Tests
                     r.IsAlreadySent(
                         It.Is<PushNotification>(n => n.PushNotificationType == notification.PushNotificationType
                                                      && n.ProtocolId == notification.ProtocolId
-                                                     && n.Id == notification.Id)))
+                                                     && n.ShipmentKey == notification.ShipmentKey
+                                                     && n.InventoryKey == notification.InventoryKey)))
                 .Returns(true);
             return this;
         }

@@ -20,7 +20,7 @@ namespace FusionInsite.App.Server.Data.Repositories
                     case PushNotificationType.ShipmentStatusChanged:
                     {
                         var cmd = new SqlCommand(@"SELECT 1 FROM tblNotificationShipment WITH(NOLOCK) WHERE ShipmentKey = @ShipmentKey AND txtShipmentStatusID = @txtShipmentStatusID AND NotificationTypeID = @NotificationTypeID", conn);
-                        cmd.Parameters.Add(new SqlParameter("@ShipmentKey", notification.Id));
+                        cmd.Parameters.Add(new SqlParameter("@ShipmentKey", notification.ShipmentKey));
                         cmd.Parameters.Add(new SqlParameter("@txtShipmentStatusID", notification.StatusId));
                         cmd.Parameters.Add(new SqlParameter("@NotificationTypeID", notification.PushNotificationType));
                         var result = cmd.ExecuteScalar();
@@ -28,8 +28,8 @@ namespace FusionInsite.App.Server.Data.Repositories
                     }
                     case PushNotificationType.ExpiringInventory:
                     {
-                        var cmd = new SqlCommand(@"SELECT 1 FROM tblNotificationInventory WITH(NOLOCK) WHERE ShipmentKey = @ShipmentKey AND NotificationTypeID = @NotificationTypeID", conn);
-                        cmd.Parameters.Add(new SqlParameter("@ShipmentKey", notification.Id));
+                        var cmd = new SqlCommand(@"SELECT 1 FROM tblNotificationInventory WITH(NOLOCK) WHERE InventoryKey = @InventoryKey AND NotificationTypeID = @NotificationTypeID", conn);
+                        cmd.Parameters.Add(new SqlParameter("@InventoryKey", notification.InventoryKey));
                         cmd.Parameters.Add(new SqlParameter("@NotificationTypeID", notification.PushNotificationType));
                         var result = cmd.ExecuteScalar();
                         return result != null && result != DBNull.Value;
@@ -55,7 +55,7 @@ namespace FusionInsite.App.Server.Data.Repositories
                         var cmd = new SqlCommand(@"INSERT INTO tblNotificationShipment (NotificationID, ShipmentKey, txtShipmentStatusID, NotificationTypeID)
                                                    VALUES (@NotificationID, @ShipmentKey, @txtShipmentStatusID, @NotificationTypeID)", conn);
                         cmd.Parameters.Add(new SqlParameter("@NotificationID", notificationId));
-                        cmd.Parameters.Add(new SqlParameter("@ShipmentKey", notification.Id));
+                        cmd.Parameters.Add(new SqlParameter("@ShipmentKey", notification.ShipmentKey));
                         cmd.Parameters.Add(new SqlParameter("@txtShipmentStatusID", notification.StatusId));
                         cmd.Parameters.Add(new SqlParameter("@NotificationTypeID", notification.PushNotificationType));
                         cmd.ExecuteNonQuery();
@@ -64,15 +64,16 @@ namespace FusionInsite.App.Server.Data.Repositories
                     case PushNotificationType.ExpiringInventory:
                     {
                         var cmd =
-                            new SqlCommand(@"INSERT INTO tblNotificationInventory (NotificationID, ShipmentKey, NotificationTypeID)
-                                             VALUES (@NotificationID, @ShipmentKey,  @NotificationTypeID)", conn)
+                            new SqlCommand(@"INSERT INTO tblNotificationInventory (NotificationID, InventoryKey, NotificationTypeID)
+                                             VALUES (@NotificationID, @InventoryKey,  @NotificationTypeID)", conn)
                             {
                                 CommandType = CommandType.Text
                             };
                         cmd.Parameters.Add(new SqlParameter("@NotificationID", notificationId));
-                        cmd.Parameters.Add(new SqlParameter("@ShipmentKey", notification.Id));
+                        cmd.Parameters.Add(new SqlParameter("@InventoryKey", notification.InventoryKey));
                         cmd.Parameters.Add(new SqlParameter("@NotificationTypeID", notification.PushNotificationType));
-                        cmd.ExecuteNonQuery();
+
+                            cmd.ExecuteNonQuery();
                     }
                         break;
                     default:

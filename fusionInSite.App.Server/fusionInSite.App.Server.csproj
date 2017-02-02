@@ -59,16 +59,14 @@
     <Compile Include="GetNewNotifications\IGetNewNotifications.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PushNotificationCoordinator.cs" />
-    <Compile Include="PushNotificationSender.cs" />
+    <Compile Include="PushNotificationSender\IPushNotificationSender.cs" />
+    <Compile Include="PushNotificationSender\PushNotificationSender.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\fusionInSite.App.Server.Data\fusionInSite.App.Server.Data.csproj">
       <Project>{6ee865d7-0930-47c3-996c-5f74ab1d60c6}</Project>
       <Name>fusionInSite.App.Server.Data</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

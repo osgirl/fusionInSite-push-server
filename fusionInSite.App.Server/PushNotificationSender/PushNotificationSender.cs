@@ -1,20 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+﻿using System.IO;
 using System.Net;
 using System.Text;
-using System.Threading.Tasks;
 using FusionInsite.App.Server.Data.Models;
 using Newtonsoft.Json;
 
-namespace FusionInsite.App.Server
+namespace FusionInsite.App.Server.PushNotificationSender
 {
-    public interface IPushNotificationSender
-    {
-        PushResult Send(UserMessage message);
-    }
-
     public class PushNotificationSender : IPushNotificationSender
     {
         public PushResult Send(UserMessage message)
@@ -30,13 +21,13 @@ namespace FusionInsite.App.Server
             var json = JsonConvert.SerializeObject(new
             {
                 app_id = "c0231a37-8fd2-4d4b-8185-5d0f4b6491cd",
-                contents = new { en = message.Message},
-                include_player_ids = new [] { Guid.NewGuid().ToString() }
+                contents = new { en = message},
+                include_player_ids = message.Token.ToArray()
             });
-            
+
 
             byte[] byteArray = Encoding.UTF8.GetBytes(json);
-    
+
             string responseContent;
 
             try
@@ -61,19 +52,16 @@ namespace FusionInsite.App.Server
                 System.Diagnostics.Debug.WriteLine(body);
 
                 dynamic bodyJson = JsonConvert.DeserializeObject(body);
-                
+
 
 
                 return PushResult.Failure;
             }
 
-
-
-
-
+            
             System.Diagnostics.Debug.WriteLine(responseContent);
             return PushResult.Success;
+
         }
-        
     }
 }

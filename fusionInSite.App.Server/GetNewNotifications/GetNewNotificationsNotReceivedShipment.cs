@@ -18,8 +18,7 @@ namespace FusionInsite.App.Server.GetNewNotifications
         public List<PushNotification> GetNotifications(DateTime lastRunTimestamp)
         {
             return new List<PushNotification>();
-
-
+            
             //var alerts = _alertsRepository.GetNotReceivedShipment(lastRunTimestamp);
             //Console.WriteLine("GetNewNotificationsNotReceivedShipment");
             //return alerts.Select(a => new PushNotification { PushNotificationType = PushNotificationType.NotReceivedShipment }).ToList();
