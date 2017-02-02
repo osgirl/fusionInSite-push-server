@@ -8,6 +8,9 @@ namespace FusionInsite.App.Server.PushNotificationSender
 {
     public class PushNotificationSender : IPushNotificationSender
     {
+        private const string OneSignalAppId = "c0231a37-8fd2-4d4b-8185-5d0f4b6491cd";
+        private const string ApiKey = "NjI5N2Y2NTktNWNjOC00YTM1LTk5MDItMWJlNmRhYzM1YzE2";
+
         public PushResult Send(UserMessage message)
         {
             var request = (HttpWebRequest)WebRequest.Create("https://onesignal.com/api/v1/notifications");
@@ -16,12 +19,13 @@ namespace FusionInsite.App.Server.PushNotificationSender
             request.Method = "POST";
             request.ContentType = "application/json; charset=utf-8";
 
-            request.Headers.Add("authorization", "Basic NjI5N2Y2NTktNWNjOC00YTM1LTk5MDItMWJlNmRhYzM1YzE2");
+            request.Headers.Add("authorization", "Basic " + ApiKey);
 
             var json = JsonConvert.SerializeObject(new
             {
-                app_id = "c0231a37-8fd2-4d4b-8185-5d0f4b6491cd",
-                contents = new { en = message},
+                app_id = OneSignalAppId,
+                contents = new { en = message.Message},
+                data = new { message.InventoryKeys, message.ShipmentKeys},
                 include_player_ids = message.Token.ToArray()
             });
 
@@ -52,9 +56,7 @@ namespace FusionInsite.App.Server.PushNotificationSender
                 System.Diagnostics.Debug.WriteLine(body);
 
                 dynamic bodyJson = JsonConvert.DeserializeObject(body);
-
-
-
+                
                 return PushResult.Failure;
             }
 
