@@ -27,6 +27,8 @@ namespace fusionInsite.App.Console
 
             HostFactory.Run(x =>
             {
+                x.StartAutomatically(); // Start the service automatically
+
                 //x.UseLog4Net();
                 x.Service<Program>(c =>
                 {
@@ -39,8 +41,6 @@ namespace fusionInsite.App.Console
                 x.SetServiceName("fusionInSite.App.Server");
                 x.SetDisplayName("fusionInSite App Server");
             });
-
-            System.Console.ReadLine();
         }
 
    

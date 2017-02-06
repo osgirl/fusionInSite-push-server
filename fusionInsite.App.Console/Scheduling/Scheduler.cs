@@ -65,7 +65,7 @@ namespace fusionInsite.App.Console
                 .StartNow()
                 //.WithSchedule(CronScheduleBuilder.CronSchedule(cronExpression))
                 .WithSimpleSchedule(x => x
-                    .WithIntervalInSeconds(30)
+                    .WithIntervalInSeconds(120)
                     .RepeatForever())
          //       .ForJob(job)
                 .Build();
