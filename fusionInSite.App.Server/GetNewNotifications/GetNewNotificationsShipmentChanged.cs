@@ -23,14 +23,13 @@ namespace FusionInsite.App.Server.GetNewNotifications
             //};
 
             var alerts = _alertsRepository.GetShipmentStatusChanged(lastRunTimestamp);
-            Console.WriteLine("GetNewNotificationsShipmentChanged");
 
             return alerts.Select(a => new PushNotification
             {
                 PushNotificationType = PushNotificationType.ShipmentStatusChanged,
                 ShipmentKey = a.ShipmentKey,
                 ProtocolId = a.ProtocolId,
-                StatusId = a.ShipmentStatusID,
+                StatusId = a.ShipmentStatusId,
                 Message = $"Shipment {a.ShipmentKey} status has changed to {a.ShipmentStatus}"
             }).ToList();
         }

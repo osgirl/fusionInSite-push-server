@@ -21,7 +21,7 @@ namespace FusionInsite.App.Server.Data.Repositories
                     {
                         var cmd = new SqlCommand(@"SELECT 1 FROM tblNotificationShipment WITH(NOLOCK) WHERE ShipmentKey = @ShipmentKey AND txtShipmentStatusID = @txtShipmentStatusID AND NotificationTypeID = @NotificationTypeID", conn);
                         cmd.Parameters.Add(new SqlParameter("@ShipmentKey", notification.ShipmentKey));
-                        cmd.Parameters.Add(new SqlParameter("@txtShipmentStatusID", notification.StatusId));
+                        cmd.Parameters.Add(new SqlParameter("@txtShipmentStatusID", (object)notification.StatusId ?? DBNull.Value));
                         cmd.Parameters.Add(new SqlParameter("@NotificationTypeID", notification.PushNotificationType));
                         var result = cmd.ExecuteScalar();
                         return result != null && result != DBNull.Value;
@@ -56,7 +56,7 @@ namespace FusionInsite.App.Server.Data.Repositories
                                                    VALUES (@NotificationID, @ShipmentKey, @txtShipmentStatusID, @NotificationTypeID)", conn);
                         cmd.Parameters.Add(new SqlParameter("@NotificationID", notificationId));
                         cmd.Parameters.Add(new SqlParameter("@ShipmentKey", notification.ShipmentKey));
-                        cmd.Parameters.Add(new SqlParameter("@txtShipmentStatusID", notification.StatusId));
+                        cmd.Parameters.Add(new SqlParameter("@txtShipmentStatusID", (object)notification.StatusId ?? DBNull.Value));
                         cmd.Parameters.Add(new SqlParameter("@NotificationTypeID", notification.PushNotificationType));
                         cmd.ExecuteNonQuery();
                     }
@@ -107,6 +107,7 @@ namespace FusionInsite.App.Server.Data.Repositories
                 var sentTimestamp = cmd.ExecuteScalar();
                 return sentTimestamp == null || sentTimestamp == DBNull.Value
                     ? SqlDateTime.MinValue.Value
+
                     : (DateTime) sentTimestamp;
             }
         }

@@ -20,7 +20,7 @@ namespace FusionInsite.App.Server.Data.Repositories
         public DateTime? ShipmentEnteredDate { get; set; }
         public DateTime? ActualShipDate { get; set; }
         public DateTime? CarrierStatusDate { get; set; }
-        public int ShipmentStatusID { get; set; }
+        public int? ShipmentStatusId { get; set; }
     }
 
     public class AlertsRepository : IAlertsRepository
@@ -42,18 +42,23 @@ namespace FusionInsite.App.Server.Data.Repositories
                     shipmentStatusChangedItems.Add(new ShipmentStatusChangedItem
                     {
                         ShipmentKey = (int)rdr["ShipmentKey"],
-                        ProtocolId = (int?)rdr["txtProtocolID"],
+                        ProtocolId = (int?)DbNullToNull(rdr["txtProtocolID"]),
                         AptuitShipmentId = rdr["txtAptuitShipmentID"].ToString(),
                         ShipmentStatus = rdr["txtShipmentStatus"].ToString(),
                         CarrierStatus = rdr["txtCarrierStatus"].ToString(),
-                        ShipmentStatusID = (int) rdr["txtShipmentStatusID"],
-                        ShipmentEnteredDate = (DateTime?)rdr["txtShipmentEnteredDate"],
-                        ActualShipDate = (DateTime?)rdr["txtActualShipDate"],
-                        CarrierStatusDate = (DateTime?)rdr["txtCarrierStatusDate"],
+                        ShipmentStatusId = (int?) DbNullToNull(rdr["txtShipmentStatusID"]),
+                        ShipmentEnteredDate = (DateTime?) DbNullToNull(rdr["txtShipmentEnteredDate"]),
+                        ActualShipDate = (DateTime?)DbNullToNull(rdr["txtActualShipDate"]),
+                        CarrierStatusDate = (DateTime?)DbNullToNull(rdr["txtCarrierStatusDate"]),
                     });
                 }
                 return shipmentStatusChangedItems;
             }
+        }
+
+        private static object DbNullToNull(object value)
+        {
+            return value == null || value == DBNull.Value ? null : value;
         }
 
 
@@ -102,8 +107,8 @@ namespace FusionInsite.App.Server.Data.Repositories
                     expiringInventoryItems.Add(new ExpiringInventoryItem
                     {
                         InventoryKey = (int) rdr["InventoryKey"],
-                        ProtocolId = (int?) rdr["txtProtocolID"],
-                        ExpirationDate = (DateTime?) rdr["txtExpirationDate"],
+                        ProtocolId = (int?)DbNullToNull(rdr["txtProtocolID"]),
+                        ExpirationDate = (DateTime?)DbNullToNull(rdr["txtExpirationDate"]),
                     });
                 }
                 return expiringInventoryItems;

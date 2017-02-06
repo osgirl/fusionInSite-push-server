@@ -6,6 +6,7 @@ using FusionInsite.App.Server.Data.Repositories;
 using FusionInsite.App.Server.Data.Repositories.Interfaces;
 using FusionInsite.App.Server.GetNewNotifications;
 using FusionInsite.App.Server.PushNotificationSender;
+using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -204,7 +205,7 @@ namespace FusionInsite.App.Server.Tests
         {
             _getNewNotifications.Setup(g => g.GetNotifications(It.IsAny<DateTime>())).Returns(_pushNotifications);
             
-            return new PushNotificationCoordinator(_sentNotificationRepository.Object, _userNotificationRepository.Object, new List<IGetNewNotifications>
+            return new PushNotificationCoordinator(new Mock<ILog>().Object, _sentNotificationRepository.Object, _userNotificationRepository.Object, new List<IGetNewNotifications>
             {
                 _getNewNotifications.Object
             }, _pushNotificationSender.Object);

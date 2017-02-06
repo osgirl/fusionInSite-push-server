@@ -32,7 +32,7 @@ namespace FusionInsite.App.Server.Data.Models
         public int InventoryKey { get; set; }
         public int? ProtocolId { get; set; }
         public PushNotificationType PushNotificationType { get; set; }
-        public int StatusId { get; set; }
+        public int? StatusId { get; set; }
         public string Message { get; set; }
     }
 

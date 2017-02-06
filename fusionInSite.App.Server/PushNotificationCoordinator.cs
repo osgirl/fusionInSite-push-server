@@ -8,18 +8,35 @@ using FusionInsite.App.Server.Data.Repositories;
 using FusionInsite.App.Server.Data.Repositories.Interfaces;
 using FusionInsite.App.Server.GetNewNotifications;
 using FusionInsite.App.Server.PushNotificationSender;
+using log4net;
 
 namespace FusionInsite.App.Server
 {
-    public class PushNotificationCoordinator
+    public interface IPushNotificationCoordinator
     {
+        /// <summary>
+        /// Get All New Notifications
+        /// -> Filter by already sent
+        /// -> Generate one message for each subscribed user
+        /// -> Group multiple messages for each user
+        /// -> Get single message text per user
+        /// -> Group the identical messages
+        /// -> Send each different message to a list of user tokens
+        /// </summary>
+        void Send();
+    }
+
+    public class PushNotificationCoordinator : IPushNotificationCoordinator
+    {
+        private readonly ILog _log;
         private readonly INotificationHistoryRepository _notificationHistoryRepository;
         private readonly IUserSubscriptionRepository _userSubscriptionRepository;
         private readonly IEnumerable<IGetNewNotifications> _notificationMakers;
         private readonly IPushNotificationSender _pushNotificationSender;
 
-        public PushNotificationCoordinator(INotificationHistoryRepository notificationHistoryRepository, IUserSubscriptionRepository userSubscriptionRepository, IEnumerable<IGetNewNotifications> notificationMakers, IPushNotificationSender pushNotificationSender) // Ninject will bind all instances
+        public PushNotificationCoordinator(ILog log, INotificationHistoryRepository notificationHistoryRepository, IUserSubscriptionRepository userSubscriptionRepository, IEnumerable<IGetNewNotifications> notificationMakers, IPushNotificationSender pushNotificationSender) // Ninject will bind all instances
         {
+            _log = log;
             _notificationHistoryRepository = notificationHistoryRepository;
             _userSubscriptionRepository = userSubscriptionRepository;
             _notificationMakers = notificationMakers;
@@ -62,8 +79,9 @@ namespace FusionInsite.App.Server
 
         private void RecordRunStatus(IReadOnlyCollection<PushNotification> notifications, IReadOnlyCollection<IGrouping<string, UserPushNotification>> usernotifications)
         {
-            Console.WriteLine($"{notifications.Count} new notifications.");
-            Console.WriteLine($"{usernotifications.Count} users to send to.");
+            _log.Info($"{notifications.Count} new notifications.");
+            _log.Info($"{usernotifications.Count} users to send to.");
+
             foreach (var notification in notifications) _notificationHistoryRepository.Add(notification);
             _notificationHistoryRepository.AddLog(notifications.Count, usernotifications.Count);
         }
