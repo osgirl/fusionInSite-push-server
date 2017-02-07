@@ -2,9 +2,11 @@
 
 Push notification server for Catalent
 
-Configuration settings
+Schedule Configuration
 ----------------------
-CronSchedule - the cron schedule when the application will check for new push notifications to send
+&lt;AppSettings&gt; &lt;add key="CronSchedule" value="" /&gt; &lt;/AppSettings&gt;   
+The cron schedule when the application will check for new push notifications to send
+ 
 Cron-Expressions are used to configure instances of CronTrigger. Cron-Expressions are strings that are actually made up of seven sub-expressions, that describe individual details of the schedule. These sub-expression are separated with white-space, and represent:
 
 Seconds  
@@ -19,6 +21,13 @@ An example of a complete cron-expression is the string “0 0 12 ? * WED” - wh
 - * = any value
 - ? = any value used in Day-of-Month or Day-of-Week fields
 An other example is the string “* 0/15 * ? * ?” - which means “every 15 minutes”.
+
+
+Logging Configuration
+----------------------
+Logging done by Log4net and is configred by editing the fusionInsite.App.Console.exe.config file  
+See: https://logging.apache.org/log4net/release/config-examples.html
+
 
 Installation
 ------------
