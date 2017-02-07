@@ -2,6 +2,7 @@
 using FusionInsite.App.Server;
 using FusionInsite.App.Server.Data.Repositories;
 using log4net;
+using log4net.Config;
 using Ninject;
 using Quartz;
 using Topshelf;
@@ -22,8 +23,9 @@ namespace fusionInsite.App.Console
         private static void Main(string[] args)
         {
             IKernel kernel = new StandardKernel(new CustomNinjectModule());
+            
 
-            Log4NetConfiguration.Configure();
+            // Log4NetConfiguration.Configure();
 
             HostFactory.Run(x =>
             {
@@ -46,7 +48,7 @@ namespace fusionInsite.App.Console
    
         void Start()
         {
-            _log.Info("fusionInSite.App.Server is starting...");
+            _log.Info("fusionInSite App Server is starting...");
             _scheduler.Start();
         }
 
@@ -54,7 +56,7 @@ namespace fusionInsite.App.Console
 
         void Stop()
         {
-            _log.Info("fusionInSite.App.Server is stopping...");
+            _log.Info("fusionInSite App Server is stopping...");
             _scheduler.Stop();
         }
     }

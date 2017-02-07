@@ -54,14 +54,21 @@ namespace FusionInsite.App.Server
         /// </summary>
         public void Send()
         {
-            var lastRunTimestamp = _notificationHistoryRepository.GetLastRunTimestamp();
+            try
+            {
+                var lastRunTimestamp = _notificationHistoryRepository.GetLastRunTimestamp();
 
-            var notifications = GetAllNewNotificationsNotAlreadySent(lastRunTimestamp);
-            var usernotifications = GenerateOneMessageForEachSubscribedUser(notifications);
-            var messageContentForEachUser = GetMessageContentForEachUser(usernotifications);
-            GroupIdenticalMessagesAndSend(messageContentForEachUser);
+                var notifications = GetAllNewNotificationsNotAlreadySent(lastRunTimestamp);
+                var usernotifications = GenerateOneMessageForEachSubscribedUser(notifications);
+                var messageContentForEachUser = GetMessageContentForEachUser(usernotifications);
+                GroupIdenticalMessagesAndSend(messageContentForEachUser);
 
-            RecordRunStatus(notifications, usernotifications);
+                RecordRunStatus(notifications, usernotifications);
+            }
+            catch (Exception ex)
+            {
+                _log.Error("Error: ", ex);
+            }
         }
 
         private List<PushNotification> GetAllNewNotificationsNotAlreadySent(DateTime lastRunTimestamp)

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -36,19 +37,19 @@ namespace fusionInsite.App.Console
 
         public void Start()
         {
-           // var cronExpression = "0/30 * * * * ?";
+            var cronExpression = ConfigurationManager.AppSettings["CronSchedule"];
 
-            //if (!CronExpression.IsValidExpression(cronExpression))
-            //{
-            //    _log.Warn("Couldn't start the scheduler. Cron expression is invalid.");
-            //    return;
-            //}
+            if (!CronExpression.IsValidExpression(cronExpression))
+            {
+                _log.Warn("Couldn't start the scheduler. Cron expression is invalid.");
+                return;
+            }
 
-            //if (string.IsNullOrEmpty(cronExpression))
-            //{
-            //    _log.Warn("No schedule set.");
-            //    return;
-            //}
+            if (string.IsNullOrEmpty(cronExpression))
+            {
+                _log.Warn("No schedule set.");
+                return;
+            }
 
             _log.Info("Starting the scheduler...");
 
@@ -63,10 +64,10 @@ namespace fusionInsite.App.Console
             var trigger = TriggerBuilder.Create()
                 .WithIdentity("trigger1", "group1")
                 .StartNow()
-                //.WithSchedule(CronScheduleBuilder.CronSchedule(cronExpression))
-                .WithSimpleSchedule(x => x
-                    .WithIntervalInSeconds(120)
-                    .RepeatForever())
+               .WithSchedule(CronScheduleBuilder.CronSchedule(cronExpression))
+                //.WithSimpleSchedule(x => x
+                //    .WithIntervalInSeconds(120)
+                //    .RepeatForever())
          //       .ForJob(job)
                 .Build();
 

@@ -48,6 +48,6 @@ namespace FusionInsite.App.Server.Data.Models
             InventoryKeys= new List<int>();
             ShipmentKeys = new List<int>();
         }
-        
     }
+
 }

@@ -107,7 +107,6 @@ namespace FusionInsite.App.Server.Data.Repositories
                 var sentTimestamp = cmd.ExecuteScalar();
                 return sentTimestamp == null || sentTimestamp == DBNull.Value
                     ? SqlDateTime.MinValue.Value
-
                     : (DateTime) sentTimestamp;
             }
         }

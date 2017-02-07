@@ -1,15 +1,23 @@
-﻿using System.IO;
+﻿using System.Configuration;
+using System.IO;
 using System.Net;
 using System.Text;
 using FusionInsite.App.Server.Data.Models;
+using log4net;
 using Newtonsoft.Json;
 
 namespace FusionInsite.App.Server.PushNotificationSender
 {
     public class PushNotificationSender : IPushNotificationSender
     {
-        private const string OneSignalAppId = "c0231a37-8fd2-4d4b-8185-5d0f4b6491cd";
-        private const string ApiKey = "NjI5N2Y2NTktNWNjOC00YTM1LTk5MDItMWJlNmRhYzM1YzE2";
+        private readonly ILog _log;
+        private readonly string _oneSignalAppId = ConfigurationManager.AppSettings["OneSignalAppId"];
+        private readonly string _apiKey = ConfigurationManager.AppSettings["OneSignalApiKey"];
+
+        public PushNotificationSender(ILog log)
+        {
+            _log = log;
+        }
 
         public PushResult Send(UserMessage message)
         {
@@ -18,12 +26,11 @@ namespace FusionInsite.App.Server.PushNotificationSender
             request.KeepAlive = true;
             request.Method = "POST";
             request.ContentType = "application/json; charset=utf-8";
-
-            request.Headers.Add("authorization", "Basic " + ApiKey);
+            request.Headers.Add("authorization", "Basic " + _apiKey);
 
             var json = JsonConvert.SerializeObject(new
             {
-                app_id = OneSignalAppId,
+                app_id = _oneSignalAppId,
                 contents = new { en = message.Message},
                 data = new { message.InventoryKeys, message.ShipmentKeys},
                 include_player_ids = message.Token.ToArray()
@@ -57,6 +64,7 @@ namespace FusionInsite.App.Server.PushNotificationSender
 
                 dynamic bodyJson = JsonConvert.DeserializeObject(body);
                 
+                _log.Error("Error sending push notification: " + body, ex);
                 return PushResult.Failure;
             }
 

@@ -21,6 +21,7 @@ namespace FusionInsite.App.Server.Data.Repositories
         public DateTime? ActualShipDate { get; set; }
         public DateTime? CarrierStatusDate { get; set; }
         public int? ShipmentStatusId { get; set; }
+        public string AptuitSiteId { get; set; }
     }
 
     public class AlertsRepository : IAlertsRepository
@@ -30,7 +31,7 @@ namespace FusionInsite.App.Server.Data.Repositories
             using (var conn = new SqlConnection{ConnectionString = ConfigurationManager.AppSettings["ConnectionString"]})
             {
                 conn.Open();
-                var cmd = new SqlCommand(@"SELECT ShipmentKey, txtProtocolID, txtAptuitShipmentID, txtShipmentStatus, txtShipmentStatusID, txtCarrierStatus, txtShipmentEnteredDate, txtActualShipDate, txtCarrierStatusDate 
+                var cmd = new SqlCommand(@"SELECT ShipmentKey, txtProtocolID, txtAptuitShipmentID, txtAptuitSiteID, txtShipmentStatus, txtShipmentStatusID, txtCarrierStatus, txtShipmentEnteredDate, txtActualShipDate, txtCarrierStatusDate 
                                            FROM tblPortalShipments WITH(NOLOCK)
                                            WHERE (txtCarrierStatusDate > @LastRunDate OR txtLastUpdate > @LastRunDate)
                                            AND TxtShipmentStatus IN('Shipped', 'Delivered')", conn) { CommandType = CommandType.Text };
@@ -44,6 +45,7 @@ namespace FusionInsite.App.Server.Data.Repositories
                         ShipmentKey = (int)rdr["ShipmentKey"],
                         ProtocolId = (int?)DbNullToNull(rdr["txtProtocolID"]),
                         AptuitShipmentId = rdr["txtAptuitShipmentID"].ToString(),
+                        AptuitSiteId = rdr["txtAptuitSiteID"].ToString(),
                         ShipmentStatus = rdr["txtShipmentStatus"].ToString(),
                         CarrierStatus = rdr["txtCarrierStatus"].ToString(),
                         ShipmentStatusId = (int?) DbNullToNull(rdr["txtShipmentStatusID"]),
