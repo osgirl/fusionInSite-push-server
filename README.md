@@ -56,12 +56,12 @@ Push notifications are sent through OneSignal
 An example payload is as follows:
 
 {  
-                app_id = '00000000-0000-0000-0000-000000000000',  
-                contents = new { en = 'Notification text content'}
-                include_player_ids = '00000000-0000-0000-0000-000000000000',  
-                data = {  
-                  notificationId = 123456  
-                },  
+&nbsp;&nbsp;&nbsp;app_id = '00000000-0000-0000-0000-000000000000',  
+&nbsp;&nbsp;&nbsp;contents = new { en = 'Notification text content'}
+&nbsp;&nbsp;&nbsp;include_player_ids = '00000000-0000-0000-0000-000000000000',  
+&nbsp;&nbsp;&nbsp;data = {  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;notificationId = 123456  
+&nbsp;&nbsp;&nbsp;},  
 }
 
 
