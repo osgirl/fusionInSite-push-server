@@ -73,17 +73,17 @@ namespace FusionInsite.App.Server.Tests
             builder.AssertAddsToRepo(_notificationProtocol1Id1.ShipmentKey);
         }
 
-        [TestMethod]
-        public void WithNotificationThatWasAlreadySent_Send_DoesNotSendTheNotification()
-        {
-            var builder =
-                new PushNotificationCoordinatorBuilder()
-                    .WithNotificationsToSend(_notificationProtocol1Id2)
-                    .WithNotificationsAlreadySent(_notificationProtocol1Id2);
-            var push = builder.Build();
-            push.Send();
-            builder.AssetSendsNotifications(0);
-        }
+        //[TestMethod]
+        //public void WithNotificationThatWasAlreadySent_Send_DoesNotSendTheNotification()
+        //{
+        //    var builder =
+        //        new PushNotificationCoordinatorBuilder()
+        //            .WithNotificationsToSend(_notificationProtocol1Id2)
+        //            .WithNotificationsAlreadySent(_notificationProtocol1Id2);
+        //    var push = builder.Build();
+        //    push.Send();
+        //    builder.AssetSendsNotifications(0);
+        //}
         
         [TestMethod]
         public void WithOneNotificationTo2DifferentUsers_Send_SendsBoth()
@@ -136,34 +136,34 @@ namespace FusionInsite.App.Server.Tests
             builder.AssetSendsNotifications(1);
         }
         
-        [TestMethod]
-        public void WithTwoNotificationsToTheSameUserBothAlreadySent_Send_DoesNotSendAny()
-        {
-            var builder =
-                new PushNotificationCoordinatorBuilder()
-                .WithNotificationsToSend(_notificationProtocol1Id1)
-                .WithNotificationsToSend(_notificationProtocol1Id2)
-                .WithNotificationsAlreadySent(_notificationProtocol1Id1)
-                .WithNotificationsAlreadySent(_notificationProtocol1Id2);
-            var push = builder.Build();
-            push.Send();
-            builder.AssetSendsNotifications(0);
-        }
+        //[TestMethod]
+        //public void WithTwoNotificationsToTheSameUserBothAlreadySent_Send_DoesNotSendAny()
+        //{
+        //    var builder =
+        //        new PushNotificationCoordinatorBuilder()
+        //        .WithNotificationsToSend(_notificationProtocol1Id1)
+        //        .WithNotificationsToSend(_notificationProtocol1Id2)
+        //        .WithNotificationsAlreadySent(_notificationProtocol1Id1)
+        //        .WithNotificationsAlreadySent(_notificationProtocol1Id2);
+        //    var push = builder.Build();
+        //    push.Send();
+        //    builder.AssetSendsNotifications(0);
+        //}
 
-        [TestMethod]
-        public void WithTwoNotificationsSubscribedByDifferentUsersOneAlreadySent_Send_SendsOne()
-        {
-            var builder =
-                new PushNotificationCoordinatorBuilder()
-                    .WithNotificationsToSend(_notificationProtocol1Id1)
-                    .WithNotificationsToSend(_notificationProtocol2Id1)
-                    .WithNotificationsAlreadySent(_notificationProtocol1Id1)
-                    .WithUserSubscribedToProtocol(101, new List<string> {"user1"})
-                    .WithUserSubscribedToProtocol(102, new List<string> {"user2"});
-            var push = builder.Build();
-            push.Send();
-            builder.AssetSendsNotifications(1);
-        }
+        //[TestMethod]
+        //public void WithTwoNotificationsSubscribedByDifferentUsersOneAlreadySent_Send_SendsOne()
+        //{
+        //    var builder =
+        //        new PushNotificationCoordinatorBuilder()
+        //            .WithNotificationsToSend(_notificationProtocol1Id1)
+        //            .WithNotificationsToSend(_notificationProtocol2Id1)
+        //            .WithNotificationsAlreadySent(_notificationProtocol1Id1)
+        //            .WithUserSubscribedToProtocol(101, new List<string> {"user1"})
+        //            .WithUserSubscribedToProtocol(102, new List<string> {"user2"});
+        //    var push = builder.Build();
+        //    push.Send();
+        //    builder.AssetSendsNotifications(1);
+        //}
 
         [TestMethod]
         public void WithTwoDifferentNotificationsSubscribedBy2DifferentUsers_Send_DoesNotCombineTheNotifications()

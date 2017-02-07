@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using fusionInsiteServicesData.Cache;
 using FusionInsite.App.Server.Data.Models;
 using FusionInsite.App.Server.Data.Repositories;
 using FusionInsite.App.Server.Data.Repositories.Interfaces;
@@ -74,9 +75,18 @@ namespace FusionInsite.App.Server
 
         private List<PushNotification> GetAllNewNotificationsNotAlreadySent(DateTime lastRunTimestamp)
         {
+            //foreach (var maker in _notificationMakers)
+            //{
+            //    var notifications = maker.GetNotifications(lastRunTimestamp);
+
+            //    notifications.Select(n => n)
+
+            //}
+
+
             return _notificationMakers.SelectMany(maker => maker.GetNotifications(lastRunTimestamp)
-                .Where(notification => !_notificationHistoryRepository.IsAlreadySent(notification)))
-                .ToList();
+              //  .Where(notification => !_notificationHistoryRepository.IsAlreadySent(notification))
+              ).ToList();
         }
 
         private List<IGrouping<string, UserPushNotification>> GenerateOneMessageForEachSubscribedUser(IEnumerable<PushNotification> notifications)
@@ -136,11 +146,10 @@ namespace FusionInsite.App.Server
 
         private IEnumerable<UserPushNotification> GetUserNotifications(PushNotification notification)
         {
-            return _userSubscriptionRepository.GetUserTokensSubscribedToProtocol(notification.ProtocolId, notification.PushNotificationType)
-                .Select(token => new UserPushNotification(notification, token));
+            return  _userSubscriptionRepository.GetUserTokensSubscribedToProtocol(notification.ProtocolId, notification.PushNotificationType)
+                                               .Select(token => new UserPushNotification(notification, token));
         }
         
-
         private UserMessage GetNotificationMessage(string token, IReadOnlyCollection<UserPushNotification> notifications)
         {
             var messages = new List<string>();

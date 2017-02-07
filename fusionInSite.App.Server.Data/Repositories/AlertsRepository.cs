@@ -68,6 +68,7 @@ namespace FusionInsite.App.Server.Data.Repositories
         /// This should not be used until data is consistently provided from couriers. Also is not tested or fully defined. 
         /// </summary>
         /// <param name="lastRunTimestamp"></param>
+        /// <param name="notificationTypeID"></param>
         /// <returns></returns>
         //public List<DataRow> GetNotReceivedShipment(DateTime lastRunTimestamp)
         //{
@@ -92,16 +93,19 @@ namespace FusionInsite.App.Server.Data.Repositories
         //}
 
         // TODO: ************************* AND txtStatusID IS NOT xxxxxxxxxxxxxxxxxxxxxxxxxxx
-        public List<ExpiringInventoryItem> GetExpiringInventory(DateTime lastRunTimestamp)
+        public List<ExpiringInventoryItem> GetExpiringInventory(DateTime lastRunTimestamp, int notificationTypeID)
         {
             using (var conn = new SqlConnection { ConnectionString = ConfigurationManager.AppSettings["ConnectionString"] })
             {
                 conn.Open();
-                var cmd = new SqlCommand(@"SELECT InventoryKey, txtProtocolID, txtExpirationDate 
-                                           FROM tblPortalInventory WITH(NOLOCK)
-                                           WHERE  txtExpirationDate >= @From AND txtExpirationDate < @to AND txtStatus <> 'Quarantine'", conn) { CommandType = CommandType.Text };
+                var cmd = new SqlCommand(@"SELECT I.InventoryKey, I.txtProtocolID, I.txtExpirationDate 
+                                           FROM tblPortalInventory I WITH(NOLOCK)
+                                           LEFT JOIN tblNotificationInventory NI WITH(NOLOCK) ON I.InventoryKey = NI.InventoryKey AND NI.NotificationTypeID = @NotificationTypeID
+                                           WHERE I.txtExpirationDate >= @From AND I.txtExpirationDate < @to AND I.txtStatus <> 'Quarantine' 
+                                           AND NI.NotificationID IS NULL", conn) { CommandType = CommandType.Text };
                 cmd.Parameters.Add(new SqlParameter("@From", lastRunTimestamp.AddDays(24))); 
                 cmd.Parameters.Add(new SqlParameter("@To", DateTime.Now.AddDays(30)));
+                cmd.Parameters.Add(new SqlParameter("@NotificationTypeID", notificationTypeID));
                 var rdr = cmd.ExecuteReader();
                 var expiringInventoryItems = new List<ExpiringInventoryItem>();
                 while (rdr.Read())

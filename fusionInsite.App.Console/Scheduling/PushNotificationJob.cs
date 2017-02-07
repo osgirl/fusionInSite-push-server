@@ -4,6 +4,7 @@ using Quartz;
 
 namespace fusionInsite.App.Console.Scheduling
 {
+    [DisallowConcurrentExecution]
     public class PushNotificationJob : IJob
     {
         private readonly ILog _log;

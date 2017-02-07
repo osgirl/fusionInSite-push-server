@@ -17,7 +17,7 @@ namespace FusionInsite.App.Server.GetNewNotifications
 
         public List<PushNotification> GetNotifications(DateTime lastRunTimestamp)
         {
-            var alerts = _alertsRepository.GetExpiringInventory(lastRunTimestamp);
+            var alerts = _alertsRepository.GetExpiringInventory(lastRunTimestamp, (int)PushNotificationType.ExpiringInventory);
             
             return alerts.Select(a => new PushNotification
             {
