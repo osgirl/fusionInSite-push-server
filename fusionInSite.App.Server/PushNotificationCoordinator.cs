@@ -60,6 +60,7 @@ namespace FusionInsite.App.Server
 
                 var notifications = GetAllNewNotificationsNotAlreadySent(lastRunTimestamp);
                 var usernotifications = GenerateOneMessageForEachSubscribedUser(notifications);
+
                 var messageContentForEachUser = GetMessageContentForEachUser(usernotifications);
                 GroupIdenticalMessagesAndSend(messageContentForEachUser);
 
@@ -89,7 +90,6 @@ namespace FusionInsite.App.Server
             _log.Info($"{notifications.Count} new notifications.");
             _log.Info($"{usernotifications.Count} users to send to.");
 
-            foreach (var notification in notifications) _notificationHistoryRepository.Add(notification);
             _notificationHistoryRepository.AddLog(notifications.Count, usernotifications.Count);
         }
         
@@ -98,12 +98,16 @@ namespace FusionInsite.App.Server
         {
             foreach (var sameMessage in userMessages.GroupBy(GetGroupKey))
             {
-                _pushNotificationSender.Send(
+                var message = sameMessage.First();
+
+                var notificationid = _notificationHistoryRepository.Add(message);
+                _pushNotificationSender.Send(notificationid,
                     new UserMessage
                     {
-                        Message = sameMessage.First().Message,
-                        InventoryKeys = sameMessage.First().InventoryKeys,
-                        ShipmentKeys = sameMessage.First().ShipmentKeys,
+                        PushNotifications = message.PushNotifications,
+                        Message = message.Message,
+                        InventoryKeys = message.InventoryKeys,
+                        ShipmentKeys = message.ShipmentKeys,
                         Token = sameMessage.SelectMany(m => m.Token).ToList()
                     });
             }
@@ -117,9 +121,9 @@ namespace FusionInsite.App.Server
         }
 
 
-        private IEnumerable<UserMessage> GetMessageContentForEachUser(IEnumerable<IGrouping<string, UserPushNotification>> usernotifications)
+        private List<UserMessage> GetMessageContentForEachUser(IEnumerable<IGrouping<string, UserPushNotification>> usernotifications)
         {
-            return usernotifications.Select(notification => GetNotificationMessage(notification.Key, notification.ToList()));
+            return usernotifications.Select(notification => GetNotificationMessage(notification.Key, notification.ToList())).ToList();
         }
 
         private IEnumerable<UserPushNotification> GetUserNotifications(PushNotification notification)
@@ -131,22 +135,26 @@ namespace FusionInsite.App.Server
 
         private UserMessage GetNotificationMessage(string token, IReadOnlyCollection<UserPushNotification> notifications)
         {
-            if (notifications.Count == 1)
-            {
-                return new UserMessage {Token = new List<string> { token}, Message = notifications.Single().Message};
-            }
+            var messages = new List<string>();
             var shipmentNotifications = notifications.Where(n => n.PushNotificationType == PushNotificationType.ShipmentStatusChanged).ToList();
             var inventoryNotifications = notifications.Where(n => n.PushNotificationType == PushNotificationType.ExpiringInventory).ToList();
-            
-            var messages = new List<string>();
-            if (shipmentNotifications.Any()) messages.Add($"{shipmentNotifications.Count} new shipment notification{(shipmentNotifications.Count > 1 ? "s" : "")}");
-            if (inventoryNotifications.Any()) messages.Add($"{inventoryNotifications.Count} new inventory notification{(inventoryNotifications.Count > 1 ? "s" : "")}");
+
+            if (notifications.Count == 1)
+            {
+                messages.Add(notifications.Single().Message);
+            }
+            else
+            {
+                if (shipmentNotifications.Any()) messages.Add($"{shipmentNotifications.Count} new shipment notification{(shipmentNotifications.Count > 1 ? "s" : "")}");
+                if (inventoryNotifications.Any()) messages.Add($"{inventoryNotifications.Count} new inventory notification{(inventoryNotifications.Count > 1 ? "s" : "")}");
+            }
 
             return new UserMessage
             {
                 Token = new List<string> { token},
                 ShipmentKeys = shipmentNotifications.Select(n => n.ShipmentKey).ToList(),
                 InventoryKeys = inventoryNotifications.Select(n => n.InventoryKey).ToList(),
+                PushNotifications = notifications.Cast<PushNotification>().ToList(),
                 Message = string.Join(" and ", messages) + "."
             };
         }

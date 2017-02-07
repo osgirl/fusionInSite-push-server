@@ -12,6 +12,7 @@ namespace FusionInsite.App.Server.Data.Models
         {
             ShipmentKey = pushNotification.ShipmentKey;
             InventoryKey = pushNotification.InventoryKey;
+            StatusId = pushNotification.StatusId;
             PushNotificationType = pushNotification.PushNotificationType;
             ProtocolId = pushNotification.ProtocolId;
             Message = pushNotification.Message;
@@ -41,12 +42,15 @@ namespace FusionInsite.App.Server.Data.Models
         public List<string> Token { get; set; }
         public List<int> InventoryKeys { get; set; }
         public List<int> ShipmentKeys { get; set; }
+
+        public List<PushNotification> PushNotifications { get; set; }
         public string Message { get; set; }
 
         public UserMessage()
         {
             InventoryKeys= new List<int>();
             ShipmentKeys = new List<int>();
+            PushNotifications = new List<PushNotification>();
         }
     }
 

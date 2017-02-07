@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Castle.Components.DictionaryAdapter;
 using FusionInsite.App.Server.Data.Models;
 using FusionInsite.App.Server.Data.Repositories;
@@ -61,6 +62,7 @@ namespace FusionInsite.App.Server.Tests
             push.Send();
             builder.AssetSendsNotifications(1);
         }
+
         [TestMethod]
         public void WithNewNotificationsToSend_Send_AddsToSentRepository()
         {
@@ -68,7 +70,7 @@ namespace FusionInsite.App.Server.Tests
                 new PushNotificationCoordinatorBuilder().WithNotificationsToSend(_notificationProtocol1Id1);
             var push = builder.Build();
             push.Send();
-            builder.AssertAddsToRepo(_notificationProtocol1Id1);
+            builder.AssertAddsToRepo(_notificationProtocol1Id1.ShipmentKey);
         }
 
         [TestMethod]
@@ -196,7 +198,7 @@ namespace FusionInsite.App.Server.Tests
         {
             _userNotificationRepository.Setup(r => r.GetUserTokensSubscribedToProtocol(It.IsAny<int>(), It.IsAny<PushNotificationType>()))
                 .Returns(new List<string> {"user1"});
-            _pushNotificationSender.Setup(s => s.Send(It.IsAny<UserMessage>())).Returns(PushResult.Success);
+            _pushNotificationSender.Setup(s => s.Send(It.IsAny<int>(), It.IsAny<UserMessage>())).Returns(PushResult.Success);
         }
 
 
@@ -213,12 +215,12 @@ namespace FusionInsite.App.Server.Tests
 
         public void AssetSendsNotifications(int messages, int users = 1)
         {
-            _pushNotificationSender.Verify(s => s.Send( It.Is<UserMessage>(l => l.Token.Count == users)), Times.Exactly(messages));
+            _pushNotificationSender.Verify(s => s.Send(It.IsAny<int>(), It.Is<UserMessage>(l => l.Token.Count == users)), Times.Exactly(messages));
         }
         
-        public void AssertAddsToRepo(PushNotification notification)
+        public void AssertAddsToRepo(int shipmentkey = 0, int inventorykey = 0)
         {
-            _sentNotificationRepository.Verify(s => s.Add(notification));
+            _sentNotificationRepository.Verify(s => s.Add(It.Is<UserMessage>(m => (shipmentkey != 0 && m.ShipmentKeys.Contains(shipmentkey)) || (inventorykey != 0 && m.InventoryKeys.Contains(inventorykey)))));
         }
 
         public PushNotificationCoordinatorBuilder WithNotificationsToSend(PushNotification pushNotification)

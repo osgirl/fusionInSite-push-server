@@ -4,6 +4,6 @@ namespace FusionInsite.App.Server.PushNotificationSender
 {
     public interface IPushNotificationSender
     {
-        PushResult Send(UserMessage message);
+        PushResult Send(int notificationId, UserMessage message);
     }
 }

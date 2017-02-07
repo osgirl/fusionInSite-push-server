@@ -6,7 +6,7 @@ namespace FusionInsite.App.Server.Data.Repositories.Interfaces
     public interface INotificationHistoryRepository
     {
         bool IsAlreadySent(PushNotification notification);
-        void Add(PushNotification notification);
+        int Add(UserMessage notification);
         void AddLog(int notificationCount, int userCount);
         DateTime GetLastRunTimestamp();
     }

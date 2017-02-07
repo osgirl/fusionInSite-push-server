@@ -41,45 +41,50 @@ namespace FusionInsite.App.Server.Data.Repositories
             }
         }
 
-        public void Add(PushNotification notification)
+        public int Add(UserMessage userMessage)
         {
             using (var conn = new SqlConnection { ConnectionString = ConfigurationManager.AppSettings["ConnectionString"] })
             {
                 conn.Open();
-                var notificationId = new SqlCommand(@"INSERT INTO tblNotification DEFAULT VALUES; SELECT SCOPE_IDENTITY()", conn).ExecuteScalar().ToString();
+                var notificationId = int.Parse(new SqlCommand(@"INSERT INTO tblNotification DEFAULT VALUES; SELECT SCOPE_IDENTITY()", conn).ExecuteScalar().ToString());
 
-                switch (notification.PushNotificationType)
+                foreach (var notification in userMessage.PushNotifications)
                 {
-                    case PushNotificationType.ShipmentStatusChanged:
+                    switch (notification.PushNotificationType)
                     {
-                        var cmd = new SqlCommand(@"INSERT INTO tblNotificationShipment (NotificationID, ShipmentKey, txtShipmentStatusID, NotificationTypeID)
-                                                   VALUES (@NotificationID, @ShipmentKey, @txtShipmentStatusID, @NotificationTypeID)", conn);
-                        cmd.Parameters.Add(new SqlParameter("@NotificationID", notificationId));
-                        cmd.Parameters.Add(new SqlParameter("@ShipmentKey", notification.ShipmentKey));
-                        cmd.Parameters.Add(new SqlParameter("@txtShipmentStatusID", (object)notification.StatusId ?? DBNull.Value));
-                        cmd.Parameters.Add(new SqlParameter("@NotificationTypeID", notification.PushNotificationType));
-                        cmd.ExecuteNonQuery();
-                    }
-                        break;
-                    case PushNotificationType.ExpiringInventory:
-                    {
-                        var cmd =
-                            new SqlCommand(@"INSERT INTO tblNotificationInventory (NotificationID, InventoryKey, NotificationTypeID)
-                                             VALUES (@NotificationID, @InventoryKey,  @NotificationTypeID)", conn)
+                        case PushNotificationType.ShipmentStatusChanged:
                             {
-                                CommandType = CommandType.Text
-                            };
-                        cmd.Parameters.Add(new SqlParameter("@NotificationID", notificationId));
-                        cmd.Parameters.Add(new SqlParameter("@InventoryKey", notification.InventoryKey));
-                        cmd.Parameters.Add(new SqlParameter("@NotificationTypeID", notification.PushNotificationType));
+                                var cmd = new SqlCommand(@"INSERT INTO tblNotificationShipment (NotificationID, ShipmentKey, txtShipmentStatusID, NotificationTypeID)
+                                                   VALUES (@NotificationID, @ShipmentKey, @txtShipmentStatusID, @NotificationTypeID)", conn);
+                                cmd.Parameters.Add(new SqlParameter("@NotificationID", notificationId));
+                                cmd.Parameters.Add(new SqlParameter("@ShipmentKey", notification.ShipmentKey));
+                                cmd.Parameters.Add(new SqlParameter("@txtShipmentStatusID", (object)notification.StatusId ?? DBNull.Value));
+                                cmd.Parameters.Add(new SqlParameter("@NotificationTypeID", notification.PushNotificationType));
+                                cmd.ExecuteNonQuery();
+                            }
+                            break;
+                        case PushNotificationType.ExpiringInventory:
+                            {
+                                var cmd =
+                                    new SqlCommand(@"INSERT INTO tblNotificationInventory (NotificationID, InventoryKey, NotificationTypeID)
+                                             VALUES (@NotificationID, @InventoryKey,  @NotificationTypeID)", conn)
+                                    {
+                                        CommandType = CommandType.Text
+                                    };
+                                cmd.Parameters.Add(new SqlParameter("@NotificationID", notificationId));
+                                cmd.Parameters.Add(new SqlParameter("@InventoryKey", notification.InventoryKey));
+                                cmd.Parameters.Add(new SqlParameter("@NotificationTypeID", notification.PushNotificationType));
 
-                            cmd.ExecuteNonQuery();
+                                cmd.ExecuteNonQuery();
+                            }
+                            break;
+                        default:
+                            throw new NotImplementedException();
                     }
-                        break;
-                    default:
-                        throw new NotImplementedException();
+
                 }
-                
+
+                return notificationId;
             }
         }
 

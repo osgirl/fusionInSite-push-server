@@ -19,7 +19,7 @@ namespace FusionInsite.App.Server.PushNotificationSender
             _log = log;
         }
 
-        public PushResult Send(UserMessage message)
+        public PushResult Send(int notificationId, UserMessage message)
         {
             var request = (HttpWebRequest)WebRequest.Create("https://onesignal.com/api/v1/notifications");
 
@@ -32,7 +32,7 @@ namespace FusionInsite.App.Server.PushNotificationSender
             {
                 app_id = _oneSignalAppId,
                 contents = new { en = message.Message},
-                data = new { message.InventoryKeys, message.ShipmentKeys},
+                data = new { notificationid = notificationId },
                 include_player_ids = message.Token.ToArray()
             });
 

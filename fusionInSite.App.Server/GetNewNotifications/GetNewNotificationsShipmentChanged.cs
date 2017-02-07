@@ -17,10 +17,7 @@ namespace FusionInsite.App.Server.GetNewNotifications
 
         public List<PushNotification> GetNotifications(DateTime lastRunTimestamp)
         {
-            //return new List<PushNotification>
-            //{
-            //    new PushNotification { PushNotificationType = PushNotificationType.ShipmentStatusChanged, Id = 7, Message = "New Shipment Changed", ProtocolId = 1, StatusId = 1}
-            //};
+            // testing: EXECUTE ON TEST DB ONLY -  UPDATE tblPortalShipments SET txtShipmentStatusID = 10, txtCarrierStatusDate = GETDATE()
 
             var alerts = _alertsRepository.GetShipmentStatusChanged(lastRunTimestamp);
 
