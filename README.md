@@ -17,9 +17,11 @@ Month
 Day-of-Week  
 Year (optional field)
 
-An example of a complete cron-expression is the string “0 0 12 * * WED” - which means “every Wednesday at 12:00 pm”.
 - * = any value
-- ? = any value used in Day-of-Week field  
+- ? = any value used in Day-of-Week field
+
+An example of a complete cron-expression is the string “0 0 12 * * WED” - which means “every Wednesday at 12:00 pm”.
+
 Another example is the string “* 0/15 * * * ?” - which means “every 15 minutes”.
 
 
