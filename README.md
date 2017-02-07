@@ -30,6 +30,12 @@ Logging Configuration
 Logging done by Log4net and is configred by editing the fusionInsite.App.Console.exe.config file  
 See: https://logging.apache.org/log4net/release/config-examples.html
 
+OneSignal Configuration
+-----------------------
+&lt;AppSettings&gt;  
+&lt;add key="OneSignalAppId" value="" /&gt;   
+&lt;add key="OneSignalApiKey" value="" /&gt;  
+&lt;/AppSettings&gt;    
 
 Installation
 ------------
@@ -41,5 +47,22 @@ and then
 fusionInsite.App.Console start
 
 The service will be visible in the Windows "Services" Management Console, and will start automatically whenever the system restarts.
+
+Push Notifications
+------------------
+
+Push notifications are sent through OneSignal
+
+An example payload is as follows:
+
+{  
+                app_id = '00000000-0000-0000-0000-000000000000',  
+                contents = new { en = 'Notification text content'}
+                include_player_ids = '00000000-0000-0000-0000-000000000000',  
+                data = {  
+                  notificationId = 123456
+                },  
+}
+
 
 
