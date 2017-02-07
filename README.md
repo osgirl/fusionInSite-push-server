@@ -60,7 +60,7 @@ An example payload is as follows:
                 contents = new { en = 'Notification text content'}
                 include_player_ids = '00000000-0000-0000-0000-000000000000',  
                 data = {  
-                  notificationId = 123456
+                  notificationId = 123456  
                 },  
 }
 
