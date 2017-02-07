@@ -6,17 +6,15 @@ using System.Threading.Tasks;
 
 namespace FusionInsite.App.Server.Data.Models
 {
-    public class UserPushNotification : PushNotification
+    public class UserPushNotification
     {
-        public UserPushNotification(PushNotification pushNotification)
+        public UserPushNotification(PushNotification pushNotification, string token)
         {
-            ShipmentKey = pushNotification.ShipmentKey;
-            InventoryKey = pushNotification.InventoryKey;
-            StatusId = pushNotification.StatusId;
-            PushNotificationType = pushNotification.PushNotificationType;
-            ProtocolId = pushNotification.ProtocolId;
-            Message = pushNotification.Message;
+            PushNotification = pushNotification;
+            Token = token;
         }
+
+        public PushNotification PushNotification { get; set; }
 
         public string Token { get; set; }
 
@@ -40,16 +38,12 @@ namespace FusionInsite.App.Server.Data.Models
     public class UserMessage
     {
         public List<string> Token { get; set; }
-        public List<int> InventoryKeys { get; set; }
-        public List<int> ShipmentKeys { get; set; }
 
         public List<PushNotification> PushNotifications { get; set; }
         public string Message { get; set; }
 
         public UserMessage()
         {
-            InventoryKeys= new List<int>();
-            ShipmentKeys = new List<int>();
             PushNotifications = new List<PushNotification>();
         }
     }

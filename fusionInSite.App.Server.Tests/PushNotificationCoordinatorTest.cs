@@ -220,7 +220,7 @@ namespace FusionInsite.App.Server.Tests
         
         public void AssertAddsToRepo(int shipmentkey = 0, int inventorykey = 0)
         {
-            _sentNotificationRepository.Verify(s => s.Add(It.Is<UserMessage>(m => (shipmentkey != 0 && m.ShipmentKeys.Contains(shipmentkey)) || (inventorykey != 0 && m.InventoryKeys.Contains(inventorykey)))));
+            _sentNotificationRepository.Verify(s => s.Add(It.Is<UserMessage>(m => (shipmentkey != 0 && m.PushNotifications.Any(k => k.ShipmentKey == shipmentkey)) || (inventorykey != 0 && m.PushNotifications.Any(k => k.InventoryKey == inventorykey)))));
         }
 
         public PushNotificationCoordinatorBuilder WithNotificationsToSend(PushNotification pushNotification)

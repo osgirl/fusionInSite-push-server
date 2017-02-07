@@ -106,8 +106,6 @@ namespace FusionInsite.App.Server
                     {
                         PushNotifications = message.PushNotifications,
                         Message = message.Message,
-                        InventoryKeys = message.InventoryKeys,
-                        ShipmentKeys = message.ShipmentKeys,
                         Token = sameMessage.SelectMany(m => m.Token).ToList()
                     });
             }
@@ -117,7 +115,17 @@ namespace FusionInsite.App.Server
         {
             // I believe this may be more efficient than grouping on IEqualityComparer (which has to call the implemented Equals n² times and each call has to enumerate entire list)
             //
-            return userMessage.Message + string.Join("i", userMessage.InventoryKeys.OrderBy(k => k)) + string.Join("s", userMessage.ShipmentKeys.OrderBy(k => k));
+            return userMessage.Message
+                   + string.Join("i",
+                       userMessage.PushNotifications.Where(
+                           p => p.PushNotificationType == PushNotificationType.ExpiringInventory)
+                                 .Select(k => k.InventoryKey)
+                                 .OrderBy(k => k))
+                   + string.Join("i",
+                       userMessage.PushNotifications.Where(
+                           p => p.PushNotificationType == PushNotificationType.ShipmentStatusChanged)
+                                 .Select(k => k.ShipmentKey)
+                                 .OrderBy(k => k));
         }
 
 
@@ -129,19 +137,19 @@ namespace FusionInsite.App.Server
         private IEnumerable<UserPushNotification> GetUserNotifications(PushNotification notification)
         {
             return _userSubscriptionRepository.GetUserTokensSubscribedToProtocol(notification.ProtocolId, notification.PushNotificationType)
-                .Select(token => (new UserPushNotification(notification)).WithUserToken(token));
+                .Select(token => new UserPushNotification(notification, token));
         }
         
 
         private UserMessage GetNotificationMessage(string token, IReadOnlyCollection<UserPushNotification> notifications)
         {
             var messages = new List<string>();
-            var shipmentNotifications = notifications.Where(n => n.PushNotificationType == PushNotificationType.ShipmentStatusChanged).ToList();
-            var inventoryNotifications = notifications.Where(n => n.PushNotificationType == PushNotificationType.ExpiringInventory).ToList();
+            var shipmentNotifications = notifications.Where(n => n.PushNotification.PushNotificationType == PushNotificationType.ShipmentStatusChanged).ToList();
+            var inventoryNotifications = notifications.Where(n => n.PushNotification.PushNotificationType == PushNotificationType.ExpiringInventory).ToList();
 
             if (notifications.Count == 1)
             {
-                messages.Add(notifications.Single().Message);
+                messages.Add(notifications.Single().PushNotification.Message);
             }
             else
             {
@@ -152,9 +160,7 @@ namespace FusionInsite.App.Server
             return new UserMessage
             {
                 Token = new List<string> { token},
-                ShipmentKeys = shipmentNotifications.Select(n => n.ShipmentKey).ToList(),
-                InventoryKeys = inventoryNotifications.Select(n => n.InventoryKey).ToList(),
-                PushNotifications = notifications.Cast<PushNotification>().ToList(),
+                PushNotifications = notifications.Select(n => n.PushNotification).ToList(),
                 Message = string.Join(" and ", messages) + "."
             };
         }
