@@ -6,24 +6,11 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using FusionInsite.App.Server.Data.Models;
 using FusionInsite.App.Server.Data.Repositories.Interfaces;
 
 namespace FusionInsite.App.Server.Data.Repositories
 {
-    public class ShipmentStatusChangedItem
-    {
-        public int ShipmentKey { get; set; }
-        public int? ProtocolId { get; set; }
-        public string AptuitShipmentId { get; set; }
-        public string ShipmentStatus { get; set; }
-        public string CarrierStatus { get; set; }
-        public DateTime? ShipmentEnteredDate { get; set; }
-        public DateTime? ActualShipDate { get; set; }
-        public DateTime? CarrierStatusDate { get; set; }
-        public int? ShipmentStatusId { get; set; }
-        public string AptuitSiteId { get; set; }
-    }
-
     public class AlertsRepository : IAlertsRepository
     {
         public List<ShipmentStatusChangedItem> GetShipmentStatusChanged(DateTime lastRunTimestamp)
@@ -68,7 +55,7 @@ namespace FusionInsite.App.Server.Data.Repositories
         /// This should not be used until data is consistently provided from couriers. Also is not tested or fully defined. 
         /// </summary>
         /// <param name="lastRunTimestamp"></param>
-        /// <param name="notificationTypeID"></param>
+        /// <param name="notificationTypeId"></param>
         /// <returns></returns>
         //public List<DataRow> GetNotReceivedShipment(DateTime lastRunTimestamp)
         //{
@@ -93,7 +80,7 @@ namespace FusionInsite.App.Server.Data.Repositories
         //}
 
         // TODO: ************************* AND txtStatusID IS NOT xxxxxxxxxxxxxxxxxxxxxxxxxxx
-        public List<ExpiringInventoryItem> GetExpiringInventory(DateTime lastRunTimestamp, int notificationTypeID)
+        public List<ExpiringInventoryItem> GetExpiringInventory(DateTime lastRunTimestamp, int notificationTypeId)
         {
             using (var conn = new SqlConnection { ConnectionString = ConfigurationManager.AppSettings["ConnectionString"] })
             {
@@ -105,7 +92,7 @@ namespace FusionInsite.App.Server.Data.Repositories
                                          "AND NI.NotificationID IS NULL", conn) { CommandType = CommandType.Text };
                 cmd.Parameters.Add(new SqlParameter("@From", lastRunTimestamp.AddDays(24))); 
                 cmd.Parameters.Add(new SqlParameter("@To", DateTime.Now.AddDays(30)));
-                cmd.Parameters.Add(new SqlParameter("@NotificationTypeID", notificationTypeID));
+                cmd.Parameters.Add(new SqlParameter("@NotificationTypeID", notificationTypeId));
                 var rdr = cmd.ExecuteReader();
                 var expiringInventoryItems = new List<ExpiringInventoryItem>();
                 while (rdr.Read())

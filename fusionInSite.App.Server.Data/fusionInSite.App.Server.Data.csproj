@@ -54,6 +54,7 @@
     <Compile Include="Repositories\Interfaces\IUserSubscriptionRepository.cs" />
     <Compile Include="Models\ProtocolSubscription.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Models\ShipmentStatusChangedItem.cs" />
     <Compile Include="Repositories\UserSubscriptionRepository.cs" />
     <Compile Include="Repositories\NotificationHistoryRepository.cs" />
   </ItemGroup>
