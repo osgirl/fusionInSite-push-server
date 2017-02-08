@@ -46,6 +46,8 @@
     <Compile Include="Models\PushNotification.cs" />
     <Compile Include="Models\PushNotificationType.cs" />
     <Compile Include="Models\PushResult.cs" />
+    <Compile Include="Models\UserMessage.cs" />
+    <Compile Include="Models\UserPushNotification.cs" />
     <Compile Include="Repositories\AlertsRepository.cs" />
     <Compile Include="Repositories\Interfaces\IAlertsRepository.cs" />
     <Compile Include="Repositories\Interfaces\INotificationHistoryRepository.cs" />

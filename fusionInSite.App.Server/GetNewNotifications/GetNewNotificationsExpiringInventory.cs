@@ -17,6 +17,11 @@ namespace FusionInsite.App.Server.GetNewNotifications
 
         public List<PushNotification> GetNotifications(DateTime lastRunTimestamp)
         {
+            /* testing: EXECUTE ON TEST DB ONLY
+            DELETE FROM tblNotificationInventory
+            UPDATE tblPortalInventory SET txtExpirationDate = DATEADD(day, 28, GETDATE()) 
+            */
+            
             var alerts = _alertsRepository.GetExpiringInventory(lastRunTimestamp, (int)PushNotificationType.ExpiringInventory);
             
             return alerts.Select(a => new PushNotification

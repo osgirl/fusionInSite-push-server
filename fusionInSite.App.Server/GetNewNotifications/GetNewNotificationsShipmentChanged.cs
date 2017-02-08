@@ -17,7 +17,9 @@ namespace FusionInsite.App.Server.GetNewNotifications
 
         public List<PushNotification> GetNotifications(DateTime lastRunTimestamp)
         {
-            // testing: EXECUTE ON TEST DB ONLY -  UPDATE tblPortalShipments SET txtShipmentStatusID = 10, txtCarrierStatusDate = GETDATE()
+            /* testing: EXECUTE ON TEST DB ONLY
+            UPDATE tblPortalShipments SET txtShipmentStatusID = (SELECT MAX(txtShipmentStatusID) FROM tblPortalShipments) + 1, txtCarrierStatusDate = GETDATE()
+            */
 
             var alerts = _alertsRepository.GetShipmentStatusChanged(lastRunTimestamp);
 
