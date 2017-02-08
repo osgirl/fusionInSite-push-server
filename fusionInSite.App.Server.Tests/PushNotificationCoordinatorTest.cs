@@ -30,6 +30,13 @@ namespace FusionInsite.App.Server.Tests
             ShipmentKey = 2
         };
         
+        private readonly PushNotification _notificationExpiringProtocol1Id1 = new PushNotification
+        {
+            PushNotificationType = PushNotificationType.ExpiringInventory,
+            ProtocolId = 101,
+            ShipmentKey = 1
+        };
+
         private readonly PushNotification _notificationProtocol2Id1 = new PushNotification
         {
             PushNotificationType = PushNotificationType.ShipmentStatusChanged,
@@ -93,7 +100,7 @@ namespace FusionInsite.App.Server.Tests
                 .WithUserSubscribedToProtocol(_notificationProtocol1Id1.ProtocolId, new List<string> {"user1", "user2"});
             var push = builder.Build();
             push.Send();
-            builder.AssetSendsNotifications(1, 2);
+            builder.AssetSendsNotificationsToUsers(1, new List<string> { "user1", "user2" });
         }
         
         [TestMethod]
@@ -117,6 +124,18 @@ namespace FusionInsite.App.Server.Tests
                 new PushNotificationCoordinatorBuilder()
                     .WithNotificationsToSend(_notificationProtocol1Id1)
                     .WithNotificationsToSend(_notificationProtocol1Id2);
+            var push = builder.Build();
+            push.Send();
+            builder.AssetSendsNotifications(1);
+        }
+
+        [TestMethod]
+        public void WitTwoNotificationsOfDifferentTypesToDSameUser_Send_GroupsTheNotifications()
+        {
+            var builder =
+                new PushNotificationCoordinatorBuilder()
+                    .WithNotificationsToSend(_notificationProtocol1Id1)
+                    .WithNotificationsToSend(_notificationExpiringProtocol1Id1);
             var push = builder.Build();
             push.Send();
             builder.AssetSendsNotifications(1);
@@ -183,6 +202,22 @@ namespace FusionInsite.App.Server.Tests
         }
 
 
+        [TestMethod]
+        public void With100UsersAnd3Notifications_Send_SendsTo100Users()
+        {
+            var builder =
+                new PushNotificationCoordinatorBuilder()
+                    .WithNotificationsToSend(_notificationProtocol1Id1)
+                    .WithNotificationsToSend(_notificationProtocol1Id2)
+                    .WithNotificationsToSend(_notificationExpiringProtocol1Id1)
+                    .WithUserSubscribedToProtocol(_notificationProtocol1Id1.ProtocolId, Enumerable.Range(0,100).Select(u => $"User {u}").ToList() );
+          
+            var push = builder.Build();
+            push.Send();
+            builder.AssetSendsNotifications(1, 100);
+        }
+
+
     }
 
     public class PushNotificationCoordinatorBuilder
@@ -216,6 +251,10 @@ namespace FusionInsite.App.Server.Tests
         public void AssetSendsNotifications(int messages, int users = 1)
         {
             _pushNotificationSender.Verify(s => s.Send(It.IsAny<int>(), It.Is<UserMessage>(l => l.Token.Count == users)), Times.Exactly(messages));
+        }
+        public void AssetSendsNotificationsToUsers(int messages, List<string> users)
+        {
+            _pushNotificationSender.Verify(s => s.Send(It.IsAny<int>(), It.Is<UserMessage>(l => l.Token.SequenceEqual(users))), Times.Exactly(messages));
         }
         
         public void AssertAddsToRepo(int shipmentkey = 0, int inventorykey = 0)

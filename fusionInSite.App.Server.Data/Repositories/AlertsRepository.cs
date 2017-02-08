@@ -31,10 +31,10 @@ namespace FusionInsite.App.Server.Data.Repositories
             using (var conn = new SqlConnection{ConnectionString = ConfigurationManager.AppSettings["ConnectionString"]})
             {
                 conn.Open();
-                var cmd = new SqlCommand(@"SELECT ShipmentKey, txtProtocolID, txtAptuitShipmentID, txtAptuitSiteID, txtShipmentStatus, txtShipmentStatusID, txtCarrierStatus, txtShipmentEnteredDate, txtActualShipDate, txtCarrierStatusDate 
-                                           FROM tblPortalShipments WITH(NOLOCK)
-                                           WHERE (txtCarrierStatusDate > @LastRunDate OR txtLastUpdate > @LastRunDate)
-                                           AND TxtShipmentStatus IN('Shipped', 'Delivered')", conn) { CommandType = CommandType.Text };
+                var cmd = new SqlCommand("SELECT ShipmentKey, txtProtocolID, txtAptuitShipmentID, txtAptuitSiteID, txtShipmentStatus, txtShipmentStatusID, txtCarrierStatus, txtShipmentEnteredDate, txtActualShipDate, txtCarrierStatusDate " +
+                                         "FROM tblPortalShipments WITH(NOLOCK) " +
+                                         "WHERE (txtCarrierStatusDate > @LastRunDate OR txtLastUpdate > @LastRunDate) " +
+                                         "AND TxtShipmentStatus IN('Shipped', 'Delivered')", conn) { CommandType = CommandType.Text };
                 cmd.Parameters.Add(new SqlParameter("@LastRunDate", lastRunTimestamp));
                 var rdr = cmd.ExecuteReader();
                 var shipmentStatusChangedItems = new List<ShipmentStatusChangedItem>();
@@ -98,11 +98,11 @@ namespace FusionInsite.App.Server.Data.Repositories
             using (var conn = new SqlConnection { ConnectionString = ConfigurationManager.AppSettings["ConnectionString"] })
             {
                 conn.Open();
-                var cmd = new SqlCommand(@"SELECT I.InventoryKey, I.txtProtocolID, I.txtExpirationDate 
-                                           FROM tblPortalInventory I WITH(NOLOCK)
-                                           LEFT JOIN tblNotificationInventory NI WITH(NOLOCK) ON I.InventoryKey = NI.InventoryKey AND NI.NotificationTypeID = @NotificationTypeID
-                                           WHERE I.txtExpirationDate >= @From AND I.txtExpirationDate < @to AND I.txtStatus <> 'Quarantine' 
-                                           AND NI.NotificationID IS NULL", conn) { CommandType = CommandType.Text };
+                var cmd = new SqlCommand("SELECT I.InventoryKey, I.txtProtocolID, I.txtExpirationDate " +
+                                         "FROM tblPortalInventory I WITH(NOLOCK) " +
+                                         "LEFT JOIN tblNotificationInventory NI WITH(NOLOCK) ON I.InventoryKey = NI.InventoryKey AND NI.NotificationTypeID = @NotificationTypeID " +
+                                         "WHERE I.txtExpirationDate >= @From AND I.txtExpirationDate < @to AND I.txtStatus <> 'Quarantine' " +
+                                         "AND NI.NotificationID IS NULL", conn) { CommandType = CommandType.Text };
                 cmd.Parameters.Add(new SqlParameter("@From", lastRunTimestamp.AddDays(24))); 
                 cmd.Parameters.Add(new SqlParameter("@To", DateTime.Now.AddDays(30)));
                 cmd.Parameters.Add(new SqlParameter("@NotificationTypeID", notificationTypeID));

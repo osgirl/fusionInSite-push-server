@@ -59,10 +59,16 @@ namespace FusionInsite.App.Server
             {
                 var lastRunTimestamp = _notificationHistoryRepository.GetLastRunTimestamp();
 
+                _log.Debug($"Getting new notifications not already sent...");
                 var notifications = GetAllNewNotificationsNotAlreadySent(lastRunTimestamp);
+                
+                _log.Debug($"Getting messages for subscribers...");
                 var usernotifications = GenerateOneMessageForEachSubscribedUser(notifications);
 
+                _log.Debug($"Getting messages content...");
                 var messageContentForEachUser = GetMessageContentForEachUser(usernotifications);
+
+                _log.Debug($"Grouping identical messages...");
                 GroupIdenticalMessagesAndSend(messageContentForEachUser);
 
                 RecordRunStatus(notifications, usernotifications);
@@ -75,17 +81,8 @@ namespace FusionInsite.App.Server
 
         private List<PushNotification> GetAllNewNotificationsNotAlreadySent(DateTime lastRunTimestamp)
         {
-            //foreach (var maker in _notificationMakers)
-            //{
-            //    var notifications = maker.GetNotifications(lastRunTimestamp);
-
-            //    notifications.Select(n => n)
-
-            //}
-
-
             return _notificationMakers.SelectMany(maker => maker.GetNotifications(lastRunTimestamp)
-              //  .Where(notification => !_notificationHistoryRepository.IsAlreadySent(notification))
+              //  .Where(notification => !_notificationHistoryRepository.IsAlreadySent(notification))  // This is now done in the database for speed
               ).ToList();
         }
 
@@ -98,7 +95,7 @@ namespace FusionInsite.App.Server
         private void RecordRunStatus(IReadOnlyCollection<PushNotification> notifications, IReadOnlyCollection<IGrouping<string, UserPushNotification>> usernotifications)
         {
             _log.Info($"{notifications.Count} new notifications.");
-            _log.Info($"{usernotifications.Count} users to send to.");
+            _log.Info($"{usernotifications.Select(u => u.Key).Count(u => !string.IsNullOrEmpty(u))} users to send to.");
 
             _notificationHistoryRepository.AddLog(notifications.Count, usernotifications.Count);
         }
@@ -106,17 +103,23 @@ namespace FusionInsite.App.Server
 
         private void GroupIdenticalMessagesAndSend(IEnumerable<UserMessage> userMessages)
         {
-            foreach (var sameMessage in userMessages.GroupBy(GetGroupKey))
+            var sameMessages = userMessages.GroupBy(GetGroupKey);
+            foreach (var sameMessage in sameMessages)  // 562 ms in GetGroupKey
             {
                 var message = sameMessage.First();
 
+                _log.Debug($"Storing in db and getting notificationid...");
                 var notificationid = _notificationHistoryRepository.Add(message);
-                _pushNotificationSender.Send(notificationid,
+
+                _log.Debug($"Sending message...");
+                var token = sameMessage.SelectMany(m => m.Token).Where(m => !string.IsNullOrEmpty(m)).ToList();
+
+                if (token.Any()) _pushNotificationSender.Send(notificationid,
                     new UserMessage
                     {
                         PushNotifications = message.PushNotifications,
                         Message = message.Message,
-                        Token = sameMessage.SelectMany(m => m.Token).ToList()
+                        Token = token
                     });
             }
         }
@@ -146,10 +149,12 @@ namespace FusionInsite.App.Server
 
         private IEnumerable<UserPushNotification> GetUserNotifications(PushNotification notification)
         {
-            return  _userSubscriptionRepository.GetUserTokensSubscribedToProtocol(notification.ProtocolId, notification.PushNotificationType)
-                                               .Select(token => new UserPushNotification(notification, token));
+            var userTokens = _userSubscriptionRepository.GetUserTokensSubscribedToProtocol(notification.ProtocolId, notification.PushNotificationType);
+            if (!userTokens.Any()) userTokens.Add(null); // We stil wabt to record that it's been processed even if there are no users to send to.
+
+            return  userTokens.Select(token => new UserPushNotification(notification, token));
         }
-        
+
         private UserMessage GetNotificationMessage(string token, IReadOnlyCollection<UserPushNotification> notifications)
         {
             var messages = new List<string>();
@@ -168,7 +173,7 @@ namespace FusionInsite.App.Server
 
             return new UserMessage
             {
-                Token = new List<string> { token},
+                Token = new List<string> { token },
                 PushNotifications = notifications.Select(n => n.PushNotification).ToList(),
                 Message = string.Join(" and ", messages) + "."
             };
