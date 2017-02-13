@@ -112,14 +112,14 @@ namespace FusionInsite.App.Server
                 var notificationid = _notificationHistoryRepository.Add(message);
 
                 _log.Debug($"Sending message...");
-                var token = sameMessage.SelectMany(m => m.Token).Where(m => !string.IsNullOrEmpty(m)).ToList();
+                var tokens = sameMessage.SelectMany(m => m.Token).Where(m => !string.IsNullOrEmpty(m)).ToList();
 
-                if (token.Any()) _pushNotificationSender.Send(notificationid,
+                if (tokens.Any()) _pushNotificationSender.Send(notificationid,
                     new UserMessage
                     {
                         PushNotifications = message.PushNotifications,
                         Message = message.Message,
-                        Token = token
+                        Token = tokens
                     });
             }
         }

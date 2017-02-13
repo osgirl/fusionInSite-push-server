@@ -17,7 +17,9 @@ namespace FusionInsite.App.Server.Data.Repositories
         {
             using (var conn = new SqlConnection{ConnectionString = ConfigurationManager.AppSettings["ConnectionString"]})
             {
-                conn.Open();
+                conn.Open(); // TODO: Composite ProtocolID and ShipmentID
+                // TODO: Look at index on txtCarrierStatusDate
+                // TODO: Only look at protocol for push notifications set up
                 var cmd = new SqlCommand("SELECT ShipmentKey, txtProtocolID, txtAptuitShipmentID, txtAptuitSiteID, txtShipmentStatus, txtShipmentStatusID, txtCarrierStatus, txtShipmentEnteredDate, txtActualShipDate, txtCarrierStatusDate " +
                                          "FROM tblPortalShipments WITH(NOLOCK) " +
                                          "WHERE (txtCarrierStatusDate > @LastRunDate OR txtLastUpdate > @LastRunDate) " +
@@ -84,7 +86,8 @@ namespace FusionInsite.App.Server.Data.Repositories
         {
             using (var conn = new SqlConnection { ConnectionString = ConfigurationManager.AppSettings["ConnectionString"] })
             {
-                conn.Open();
+                conn.Open(); // TODO: Composite ProtocolID and AptuitLotBatchNo and ItemID
+                // TODO: Only look at protocol for push notifications set up
                 var cmd = new SqlCommand("SELECT I.InventoryKey, I.txtProtocolID, I.txtExpirationDate " +
                                          "FROM tblPortalInventory I WITH(NOLOCK) " +
                                          "LEFT JOIN tblNotificationInventory NI WITH(NOLOCK) ON I.InventoryKey = NI.InventoryKey AND NI.NotificationTypeID = @NotificationTypeID " +
