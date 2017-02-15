@@ -93,7 +93,8 @@ namespace FusionInsite.App.Server.Data.Repositories
                                          "LEFT JOIN tblNotificationInventory NI WITH(NOLOCK) ON I.InventoryKey = NI.InventoryKey AND NI.NotificationTypeID = @NotificationTypeID " +
                                          "WHERE I.txtExpirationDate >= @From AND I.txtExpirationDate < @to AND I.txtStatus <> 'Quarantine' " +
                                          "AND NI.NotificationID IS NULL", conn) { CommandType = CommandType.Text };
-                cmd.Parameters.Add(new SqlParameter("@From", lastRunTimestamp.AddDays(24))); 
+                var searchFrom = new DateTime(Math.Max(lastRunTimestamp.AddDays(30).Ticks, DateTime.Now.AddDays(23).Ticks));
+                cmd.Parameters.Add(new SqlParameter("@From", searchFrom));
                 cmd.Parameters.Add(new SqlParameter("@To", DateTime.Now.AddDays(30)));
                 cmd.Parameters.Add(new SqlParameter("@NotificationTypeID", notificationTypeId));
                 var rdr = cmd.ExecuteReader();
