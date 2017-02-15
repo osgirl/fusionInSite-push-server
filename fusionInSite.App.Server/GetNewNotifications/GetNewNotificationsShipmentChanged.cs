@@ -21,13 +21,14 @@ namespace FusionInsite.App.Server.GetNewNotifications
             UPDATE tblPortalShipments SET txtShipmentStatusID = (SELECT MAX(txtShipmentStatusID) FROM tblPortalShipments) + 1, txtCarrierStatusDate = GETDATE()
             */
 
-            var alerts = _alertsRepository.GetShipmentStatusChanged(lastRunTimestamp);
+            var alerts = _alertsRepository.GetShipmentStatusChanged(lastRunTimestamp, (int)PushNotificationType.ShipmentStatusChanged);
 
             return alerts.Select(a => new PushNotification
             {
                 PushNotificationType = PushNotificationType.ShipmentStatusChanged,
                 ShipmentKey = a.ShipmentKey,
                 ProtocolId = a.ProtocolId,
+                AptuitShipmentId = a.AptuitShipmentId,
                 StatusId = a.ShipmentStatusId,
                 Message = $"Shipment {a.ShipmentKey} status has changed to {a.ShipmentStatus}"
             }).ToList();

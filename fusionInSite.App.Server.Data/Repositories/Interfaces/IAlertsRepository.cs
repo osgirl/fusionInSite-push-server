@@ -9,7 +9,7 @@ namespace FusionInsite.App.Server.Data.Repositories.Interfaces
     {
         List<ExpiringInventoryItem> GetExpiringInventory(DateTime lastRunTimestamp, int notificationTypeId);
         //List<DataRow> GetNotReceivedShipment(DateTime lastRunTimestamp); // Cannot use until data is consistent
-        List<ShipmentStatusChangedItem> GetShipmentStatusChanged(DateTime lastRunTimestamp);
+        List<ShipmentStatusChangedItem> GetShipmentStatusChanged(DateTime lastRunTimestamp, int notificationTypeId);
     }
     
 }

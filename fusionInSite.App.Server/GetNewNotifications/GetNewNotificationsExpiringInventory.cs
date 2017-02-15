@@ -28,6 +28,8 @@ namespace FusionInsite.App.Server.GetNewNotifications
             {
                 PushNotificationType = PushNotificationType.ExpiringInventory,
                 InventoryKey = a.InventoryKey,
+                AptuitLotBatchNo = a.AptuitLotBatchNo,
+                ItemID = a.ItemID,
                 ProtocolId = a.ProtocolId,
                 Message = $"Inventory {a.InventoryKey} is expiring on {a.ExpirationDate?.ToShortDateString() ?? ""}"
             }).ToList();

@@ -11,5 +11,8 @@ namespace FusionInsite.App.Server.Data.Models
         public PushNotificationType PushNotificationType { get; set; }
         public int? StatusId { get; set; }
         public string Message { get; set; }
+        public string AptuitShipmentId { get; set; }
+        public string AptuitLotBatchNo { get; set; }
+        public string ItemID { get; set; }
     }
 }

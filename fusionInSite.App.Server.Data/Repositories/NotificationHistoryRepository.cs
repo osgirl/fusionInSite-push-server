@@ -54,10 +54,11 @@ namespace FusionInsite.App.Server.Data.Repositories
                     {
                         case PushNotificationType.ShipmentStatusChanged:
                             {
-                                var cmd = new SqlCommand(@"INSERT INTO tblNotificationShipment (NotificationID, ShipmentKey, txtShipmentStatusID, NotificationTypeID)
-                                                   VALUES (@NotificationID, @ShipmentKey, @txtShipmentStatusID, @NotificationTypeID)", conn);
+                                var cmd = new SqlCommand(@"INSERT INTO tblNotificationShipment (NotificationID, ProtocolID, txtAptuitShipmentID, txtShipmentStatusID, NotificationTypeID)
+                                                   VALUES (@NotificationID, @ProtocolID, @AptuitShipmentId, @txtShipmentStatusID, @NotificationTypeID)", conn);
                                 cmd.Parameters.Add(new SqlParameter("@NotificationID", notificationId));
-                                cmd.Parameters.Add(new SqlParameter("@ShipmentKey", notification.ShipmentKey));
+                                cmd.Parameters.Add(new SqlParameter("@ProtocolId", notification.ProtocolId));
+                                cmd.Parameters.Add(new SqlParameter("@AptuitShipmentId", notification.AptuitShipmentId));
                                 cmd.Parameters.Add(new SqlParameter("@txtShipmentStatusID", (object)notification.StatusId ?? DBNull.Value));
                                 cmd.Parameters.Add(new SqlParameter("@NotificationTypeID", notification.PushNotificationType));
                                 cmd.ExecuteNonQuery();
@@ -66,13 +67,15 @@ namespace FusionInsite.App.Server.Data.Repositories
                         case PushNotificationType.ExpiringInventory:
                             {
                                 var cmd =
-                                    new SqlCommand(@"INSERT INTO tblNotificationInventory (NotificationID, InventoryKey, NotificationTypeID)
-                                             VALUES (@NotificationID, @InventoryKey,  @NotificationTypeID)", conn)
+                                    new SqlCommand(@"INSERT INTO tblNotificationInventory (NotificationID, ProtocolID, txtAptuitLotBatchNo, txtItemID, NotificationTypeID)
+                                             VALUES (@NotificationID, @ProtocolID, @txtAptuitLotBatchNo, @txtItemID, @NotificationTypeID)", conn)
                                     {
                                         CommandType = CommandType.Text
                                     };
                                 cmd.Parameters.Add(new SqlParameter("@NotificationID", notificationId));
-                                cmd.Parameters.Add(new SqlParameter("@InventoryKey", notification.InventoryKey));
+                                cmd.Parameters.Add(new SqlParameter("@ProtocolID", notification.ProtocolId));
+                                cmd.Parameters.Add(new SqlParameter("@txtAptuitLotBatchNo", notification.AptuitLotBatchNo));
+                                cmd.Parameters.Add(new SqlParameter("@txtItemID", notification.ItemID));
                                 cmd.Parameters.Add(new SqlParameter("@NotificationTypeID", notification.PushNotificationType));
 
                                 cmd.ExecuteNonQuery();
