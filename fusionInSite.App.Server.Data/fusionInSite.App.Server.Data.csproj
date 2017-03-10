@@ -47,6 +47,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CacheHelper.cs" />
+    <Compile Include="ExtensionHelper.cs" />
     <Compile Include="Models\PushNotification.cs" />
     <Compile Include="Models\PushNotificationType.cs" />
     <Compile Include="Models\PushResult.cs" />

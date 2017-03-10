@@ -22,7 +22,6 @@ namespace FusionInsite.App.Server.PushNotificationSender
         public PushResult Send(int notificationId, UserMessage message)
         {
             var request = (HttpWebRequest)WebRequest.Create("https://onesignal.com/api/v1/notifications");
-
             request.KeepAlive = true;
             request.Method = "POST";
             request.ContentType = "application/json; charset=utf-8";

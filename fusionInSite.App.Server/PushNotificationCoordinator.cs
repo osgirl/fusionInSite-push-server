@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using fusionInsiteServicesData.Cache;
+using FusionInsite.App.Server.Data;
 using FusionInsite.App.Server.Data.Models;
 using FusionInsite.App.Server.Data.Repositories;
 using FusionInsite.App.Server.Data.Repositories.Interfaces;
@@ -114,13 +116,19 @@ namespace FusionInsite.App.Server
                 _log.Debug($"Sending message...");
                 var tokens = sameMessage.SelectMany(m => m.Token).Where(m => !string.IsNullOrEmpty(m)).ToList();
 
-                if (tokens.Any()) _pushNotificationSender.Send(notificationid,
-                    new UserMessage
+                if (tokens.Any())
+                {
+                    foreach (var batch in tokens.Batch(2000).Select(t => t.ToList()).ToList()) // One signal limited to 2000 playerIds
                     {
-                        PushNotifications = message.PushNotifications,
-                        Message = message.Message,
-                        Token = tokens
-                    });
+                        _pushNotificationSender.Send(notificationid,
+                            new UserMessage
+                            {
+                                PushNotifications = message.PushNotifications,
+                                Message = message.Message,
+                                Token = batch
+                            });
+                    }
+                }
             }
         }
 
